@@ -1,0 +1,21 @@
+{
+  "logoText": "Northstar",
+  "items": [
+    {
+      "label": "Services",
+      "href": "/services"
+    },
+    {
+      "label": "Case Studies",
+      "href": "/case-studies"
+    },
+    {
+      "label": "Contact",
+      "href": "/contact"
+    }
+  ],
+  "cta": {
+    "label": "Book Intro Call",
+    "href": "/contact"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "slug": "contact",
+  "title": "Contact",
+  "description": "Share your goals and current constraints.",
+  "seo": {
+    "title": "Contact | Northstar Systems",
+    "description": "Contact Northstar Systems to discuss your growth operations goals.",
+    "canonicalPath": "/contact"
+  },
+  "blocks": [
+    {
+      "type": "hero",
+      "id": "contact-hero",
+      "eyebrow": "Contact",
+      "headline": "Tell us where your team is getting stuck",
+      "body": "We'll follow up with practical next steps and recommended scope.",
+      "primaryCta": {
+        "label": "Submit details",
+        "href": "#contact-form"
+      }
+    },
+    {
+      "type": "contactForm",
+      "id": "contact-form",
+      "title": "Start with a short brief",
+      "body": "Share context on your goals, constraints, and timeline.",
+      "submitLabel": "Send message"
+    },
+    {
+      "type": "faq",
+      "id": "contact-faq",
+      "title": "Before you reach out",
+      "groupSlug": "general"
+    }
+  ]
+}

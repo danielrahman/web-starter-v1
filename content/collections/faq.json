@@ -1,0 +1,23 @@
+{
+  "groups": [
+    {
+      "slug": "general",
+      "title": "General FAQs",
+      "intro": "Typical questions from growth-stage B2B teams.",
+      "items": [
+        {
+          "question": "How long does a typical engagement take?",
+          "answer": "Most projects run between 6 and 12 weeks depending on implementation depth."
+        },
+        {
+          "question": "Do you work with existing tooling?",
+          "answer": "Yes. We prioritize practical improvements within your current stack before recommending changes."
+        },
+        {
+          "question": "Can you support internal enablement?",
+          "answer": "Yes. We document workflows and train internal owners as part of implementation."
+        }
+      ]
+    }
+  ]
+}

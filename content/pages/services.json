@@ -1,0 +1,77 @@
+{
+  "slug": "services",
+  "title": "Services",
+  "description": "Engagement models built for B2B teams with operational complexity.",
+  "seo": {
+    "title": "Services | Northstar Systems",
+    "description": "Operational consulting services for B2B growth teams.",
+    "canonicalPath": "/services"
+  },
+  "blocks": [
+    {
+      "type": "hero",
+      "id": "services-hero",
+      "eyebrow": "Services",
+      "headline": "Hands-on support for strategy, systems, and execution",
+      "body": "Choose an engagement model that fits your stage: focused advisory, implementation sprints, or embedded partnership.",
+      "primaryCta": {
+        "label": "Plan an engagement",
+        "href": "/contact"
+      }
+    },
+    {
+      "type": "services",
+      "id": "services-list",
+      "title": "Service lines",
+      "items": [
+        {
+          "title": "Revenue planning",
+          "description": "Quarterly planning frameworks, goals, and ownership mapping."
+        },
+        {
+          "title": "Lifecycle operations",
+          "description": "Lead management, routing, scoring, and lifecycle workflow design."
+        },
+        {
+          "title": "Attribution and reporting",
+          "description": "Decision-ready reporting model with clear metric definitions."
+        }
+      ]
+    },
+    {
+      "type": "richText",
+      "id": "services-approach",
+      "title": "How we work",
+      "body": "We begin with a structured discovery, identify high-leverage constraints, and deliver an execution roadmap. Every recommendation is tied to owner, timeline, and measurable impact."
+    },
+    {
+      "type": "stats",
+      "id": "services-stats",
+      "title": "Engagement model",
+      "items": [
+        {
+          "label": "Advisory",
+          "value": "4-6 weeks"
+        },
+        {
+          "label": "Implementation",
+          "value": "8-12 weeks"
+        },
+        {
+          "label": "Embedded",
+          "value": "Quarterly"
+        }
+      ]
+    },
+    {
+      "type": "cta",
+      "id": "services-cta",
+      "title": "Looking for an implementation partner?",
+      "body": "Share your current stack and constraints. We'll recommend the right engagement format.",
+      "primaryCta": {
+        "label": "Contact us",
+        "href": "/contact"
+      }
+    }
+  ]
+}

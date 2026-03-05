@@ -1,0 +1,21 @@
+@import "tailwindcss";
+@import "../styles/theme.css";
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+a {
+  color: inherit;
+}
