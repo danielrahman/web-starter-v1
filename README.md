@@ -20,7 +20,7 @@ Reusable starter for high-volume marketing site delivery with one frontend and t
 - `npm run lint`
 - `npm run typecheck`
 - `npm run test:integration` (seed idempotence + fallback policy integration checks)
-- `npm run verify:cms` (validates CMS env + Turso/libSQL query + R2 endpoint/public URL)
+- `npm run verify:cms` (validates CMS env + libSQL/SQLite query + R2 endpoint/public URL)
 - `npm run payload:seed` (imports file content from `/content` into Payload globals/collections)
 - `npm run payload:create-admin` (creates first Payload admin user)
 
@@ -65,7 +65,7 @@ CMS_ENABLED=true
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 PAYLOAD_SECRET=replace-with-long-random-secret
 DATABASE_URL=libsql://<db-name>-<org>.turso.io
-TURSO_AUTH_TOKEN=<turso-token>
+TURSO_AUTH_TOKEN=<turso-token> # required only for libsql://
 S3_ENDPOINT=https://<account-id>.r2.cloudflarestorage.com
 S3_BUCKET=<r2-bucket-name>
 S3_ACCESS_KEY_ID=<r2-access-key-id>
@@ -77,7 +77,6 @@ Local-only CMS dev fallback (if you do not want remote Turso while developing):
 
 ```bash
 DATABASE_URL=file:./payload.db
-TURSO_AUTH_TOKEN=local-dev-token
 ```
 
 Validate CMS config and DB connectivity:
@@ -141,10 +140,10 @@ Frontend only consumes normalized domain models:
 
 Adapter layer:
 
-- [`/Users/danielrahman/Desktop/web-starter-v1/lib/content/content-source.ts`](/Users/danielrahman/Desktop/web-starter-v1/lib/content/content-source.ts)
-- [`/Users/danielrahman/Desktop/web-starter-v1/lib/content/file-content-source.ts`](/Users/danielrahman/Desktop/web-starter-v1/lib/content/file-content-source.ts)
-- [`/Users/danielrahman/Desktop/web-starter-v1/lib/content/payload-content-source.ts`](/Users/danielrahman/Desktop/web-starter-v1/lib/content/payload-content-source.ts)
-- [`/Users/danielrahman/Desktop/web-starter-v1/lib/content/get-content-source.ts`](/Users/danielrahman/Desktop/web-starter-v1/lib/content/get-content-source.ts)
+- [lib/content/content-source.ts](./lib/content/content-source.ts)
+- [lib/content/file-content-source.ts](./lib/content/file-content-source.ts)
+- [lib/content/payload-content-source.ts](./lib/content/payload-content-source.ts)
+- [lib/content/get-content-source.ts](./lib/content/get-content-source.ts)
 
 `getContentSource()` switches implementation by `CMS_ENABLED`, so sections/pages are source-agnostic.
 
@@ -176,13 +175,13 @@ Recommended production setting is `bootstrap` or `never`. Do not allow runtime D
 
 Dynamic renderer:
 
-- [`/Users/danielrahman/Desktop/web-starter-v1/components/sections/section-renderer.tsx`](/Users/danielrahman/Desktop/web-starter-v1/components/sections/section-renderer.tsx)
+- [components/sections/section-renderer.tsx](./components/sections/section-renderer.tsx)
 
 The following are page-level layout sections (not part of `SectionBlock`):
 
-- [`/Users/danielrahman/Desktop/web-starter-v1/components/sections/simple-page-header-section.tsx`](/Users/danielrahman/Desktop/web-starter-v1/components/sections/simple-page-header-section.tsx)
-- [`/Users/danielrahman/Desktop/web-starter-v1/components/sections/listing-teaser-section.tsx`](/Users/danielrahman/Desktop/web-starter-v1/components/sections/listing-teaser-section.tsx)
-- [`/Users/danielrahman/Desktop/web-starter-v1/components/sections/card-grid-section.tsx`](/Users/danielrahman/Desktop/web-starter-v1/components/sections/card-grid-section.tsx)
+- [components/sections/simple-page-header-section.tsx](./components/sections/simple-page-header-section.tsx)
+- [components/sections/listing-teaser-section.tsx](./components/sections/listing-teaser-section.tsx)
+- [components/sections/card-grid-section.tsx](./components/sections/card-grid-section.tsx)
 
 ## Payload Configuration
 
@@ -192,7 +191,7 @@ The following are page-level layout sections (not part of `SectionBlock`):
 
 Config entry:
 
-- [`/Users/danielrahman/Desktop/web-starter-v1/payload.config.ts`](/Users/danielrahman/Desktop/web-starter-v1/payload.config.ts)
+- [payload.config.ts](./payload.config.ts)
 
 R2 public URL generation is configured on the `media` collection via `generateFileURL`, using `S3_PUBLIC_BASE_URL`.
 
@@ -200,7 +199,7 @@ R2 public URL generation is configured on the `media` collection via `generateFi
 
 Route:
 
-- [`/Users/danielrahman/Desktop/web-starter-v1/app/api/contact/route.ts`](/Users/danielrahman/Desktop/web-starter-v1/app/api/contact/route.ts)
+- [app/api/contact/route.ts](./app/api/contact/route.ts)
 
 Features:
 

@@ -5,7 +5,6 @@ const required = [
   'NEXT_PUBLIC_SITE_URL',
   'PAYLOAD_SECRET',
   'DATABASE_URL',
-  'TURSO_AUTH_TOKEN',
   'S3_ENDPOINT',
   'S3_BUCKET',
   'S3_ACCESS_KEY_ID',
@@ -25,8 +24,16 @@ if (process.env.CMS_ENABLED !== 'true') {
 }
 
 const databaseURL = process.env.DATABASE_URL
-if (!databaseURL.startsWith('libsql://') && !databaseURL.startsWith('file:')) {
+const usesLibsql = databaseURL.startsWith('libsql://')
+const usesFileSqlite = databaseURL.startsWith('file:')
+
+if (!usesLibsql && !usesFileSqlite) {
   console.error('DATABASE_URL must start with libsql:// (Turso) or file: (local sqlite).')
+  process.exit(1)
+}
+
+if (usesLibsql && !process.env.TURSO_AUTH_TOKEN) {
+  console.error('TURSO_AUTH_TOKEN is required when DATABASE_URL uses libsql://.')
   process.exit(1)
 }
 
@@ -48,7 +55,7 @@ if (!/^https?:\/\/.+/.test(publicBase)) {
 
 const client = createClient({
   url: databaseURL,
-  authToken: process.env.TURSO_AUTH_TOKEN,
+  ...(usesLibsql ? { authToken: process.env.TURSO_AUTH_TOKEN } : {}),
 })
 
 try {
