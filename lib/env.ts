@@ -5,7 +5,15 @@ const booleanFromEnv = z
   .default('false')
   .transform((value) => value === 'true')
 
-const cmsFileFallbackModeFromEnv = z.enum(['always', 'bootstrap', 'never']).optional()
+const cmsFileFallbackModeFromEnv = z.preprocess(
+  (value) => {
+    if (typeof value !== 'string') return value
+
+    const normalizedValue = value.trim()
+    return normalizedValue.length === 0 ? undefined : normalizedValue
+  },
+  z.enum(['always', 'bootstrap', 'never']).optional()
+)
 
 export const cmsEnabled = booleanFromEnv.parse(process.env.CMS_ENABLED)
 
