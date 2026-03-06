@@ -1,9 +1,10 @@
 import type { CollectionConfig } from 'payload'
 
-import { seoField } from '@/payload/fields/seo'
-
 export const CaseStudies: CollectionConfig = {
   slug: 'caseStudies',
+  access: {
+    read: () => true,
+  },
   admin: {
     defaultColumns: ['title', 'slug', 'updatedAt'],
     useAsTitle: 'title',
@@ -86,6 +87,5 @@ export const CaseStudies: CollectionConfig = {
         },
       ],
     },
-    seoField,
   ],
 }

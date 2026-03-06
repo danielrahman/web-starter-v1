@@ -1,9 +1,11 @@
 import '@payloadcms/next/css'
+import './admin-overrides.css'
 
 import type { ReactNode } from 'react'
-import type { ServerFunctionClient } from 'payload'
 
 import { cmsEnabled } from '@/lib/env'
+
+import { payloadServerFunction } from './serverFunction'
 
 type PayloadLayoutProps = {
   children: ReactNode
@@ -11,27 +13,21 @@ type PayloadLayoutProps = {
 
 export default async function PayloadLayout({ children }: PayloadLayoutProps) {
   if (!cmsEnabled) {
-    return <>{children}</>
+    return (
+      <html lang="en">
+        <body>{children}</body>
+      </html>
+    )
   }
 
-  const [{ default: config }, { handleServerFunctions, RootLayout }, { importMap }] = await Promise.all([
+  const [{ default: config }, { RootLayout }, { importMap }] = await Promise.all([
     import('@payload-config'),
     import('@payloadcms/next/layouts'),
     import('./admin/importMap'),
   ])
 
-  const serverFunction: ServerFunctionClient = async function (args) {
-    'use server'
-
-    return handleServerFunctions({
-      ...args,
-      config,
-      importMap,
-    })
-  }
-
   return (
-    <RootLayout config={config} importMap={importMap} serverFunction={serverFunction}>
+    <RootLayout config={config} importMap={importMap} serverFunction={payloadServerFunction}>
       {children}
     </RootLayout>
   )

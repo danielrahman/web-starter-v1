@@ -6,6 +6,10 @@ export const FAQs: CollectionConfig = {
     defaultColumns: ['title', 'slug', 'updatedAt'],
     useAsTitle: 'title',
   },
+  labels: {
+    plural: 'FAQ Groups',
+    singular: 'FAQ Group',
+  },
   versions: {
     drafts: true,
   },

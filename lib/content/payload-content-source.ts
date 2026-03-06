@@ -20,7 +20,8 @@ import {
   normalizePageDocument,
   normalizeSiteSettingsGlobal,
 } from './payload/normalizers'
-import { cmsFileFallbackMode } from '@/lib/env'
+
+const defaultCmsFileFallbackMode = process.env.NODE_ENV === 'production' ? 'bootstrap' : 'always'
 
 type PayloadClient = {
   findGlobal: (args: { depth: number; slug: string }) => Promise<unknown>
@@ -53,7 +54,7 @@ export class PayloadContentSource implements ContentSource {
 
   constructor(dependencies: PayloadContentSourceDependencies = {}) {
     this.createFileFallbackSource = dependencies.createFileFallbackSource || createDefaultFileFallbackSource
-    this.fallbackPolicy = dependencies.fallbackPolicy || resolvePayloadFallbackPolicy(cmsFileFallbackMode)
+    this.fallbackPolicy = dependencies.fallbackPolicy || resolvePayloadFallbackPolicy(defaultCmsFileFallbackMode)
     this.getPayloadClient = dependencies.getPayloadClient || getDefaultPayloadClient
   }
 

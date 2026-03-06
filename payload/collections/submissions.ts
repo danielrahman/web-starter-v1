@@ -4,7 +4,13 @@ export const Submissions: CollectionConfig = {
   slug: 'submissions',
   admin: {
     defaultColumns: ['name', 'email', 'submittedAt'],
+    description: 'Inbox for contact form leads captured from the website.',
+    group: 'Leads',
     useAsTitle: 'name',
+  },
+  labels: {
+    plural: 'Leads',
+    singular: 'Lead',
   },
   access: {
     create: () => true,

@@ -13,7 +13,7 @@ type CaseStudyPageProps = {
 export async function generateMetadata({ params }: CaseStudyPageProps): Promise<Metadata> {
   const { slug } = await params
   const source = getContentSource()
-  const caseStudy = await source.getCaseStudyBySlug(slug)
+  const [caseStudy, site] = await Promise.all([source.getCaseStudyBySlug(slug), source.getSiteConfig()])
 
   if (!caseStudy) {
     return {
@@ -26,6 +26,7 @@ export async function generateMetadata({ params }: CaseStudyPageProps): Promise<
     description: caseStudy.seo?.description || caseStudy.summary,
     canonicalPath: caseStudy.seo?.canonicalPath || `/case-studies/${caseStudy.slug}`,
     seo: caseStudy.seo,
+    site,
   })
 }
 

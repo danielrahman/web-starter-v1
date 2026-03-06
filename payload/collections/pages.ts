@@ -13,10 +13,12 @@ import {
   StatsBlock,
   TestimonialsBlock,
 } from '@/payload/blocks'
-import { seoField } from '@/payload/fields/seo'
 
 export const Pages: CollectionConfig = {
   slug: 'pages',
+  access: {
+    read: () => true,
+  },
   admin: {
     defaultColumns: ['title', 'slug', 'updatedAt'],
     useAsTitle: 'title',
@@ -41,7 +43,6 @@ export const Pages: CollectionConfig = {
       name: 'description',
       type: 'textarea',
     },
-    seoField,
     {
       name: 'blocks',
       label: 'Page sections',

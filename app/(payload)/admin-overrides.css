@@ -1,0 +1,21 @@
+/* Payload wraps the custom breadcrumb icon in its own span with overflow clipping.
+   Keep this override scoped to admin step-nav so branding survives upstream DOM styles. */
+.step-nav .step-nav__home {
+  height: auto;
+  min-height: 2rem;
+  min-width: 2rem;
+  overflow: visible;
+  width: auto;
+}
+
+.step-nav .step-nav__home > span {
+  align-items: center;
+  display: flex;
+  max-width: none;
+  overflow: visible;
+  white-space: normal;
+}
+
+.step-nav .step-nav__home > span > * {
+  flex-shrink: 0;
+}

@@ -9,6 +9,7 @@ import {
   pageSchema,
   siteConfigSchema,
 } from '@/lib/content/schemas'
+import { mapSeoToPayloadMeta } from '@/lib/content/payload/seo'
 import { mapSectionBlockToPayload } from '@/lib/content/payload/block-mapper'
 import { ensureCmsEnabled, getDocId, withPayload } from './_shared/payload-cli-utils.mjs'
 
@@ -23,13 +24,30 @@ async function readJSON(relativePath, schema) {
 
 async function readPages() {
   const pagesDir = path.join(process.cwd(), 'content', 'pages')
-  const files = await readdir(pagesDir)
-
-  const pages = await Promise.all(
-    files.filter((name) => name.endsWith('.json')).map((name) => readJSON(path.join('content', 'pages', name), pageSchema)),
-  )
+  const files = await collectJSONFiles(pagesDir)
+  const pages = await Promise.all(files.map((filePath) => readJSON(path.relative(process.cwd(), filePath), pageSchema)))
 
   return pages.sort((a, b) => a.slug.localeCompare(b.slug))
+}
+
+async function collectJSONFiles(directoryPath) {
+  const entries = await readdir(directoryPath, { withFileTypes: true })
+  const files = []
+
+  for (const entry of entries) {
+    const entryPath = path.join(directoryPath, entry.name)
+
+    if (entry.isDirectory()) {
+      files.push(...(await collectJSONFiles(entryPath)))
+      continue
+    }
+
+    if (entry.isFile() && entry.name.endsWith('.json')) {
+      files.push(entryPath)
+    }
+  }
+
+  return files
 }
 
 async function upsertBySlug(payload, collection, slug, data) {
@@ -85,13 +103,22 @@ await withPayload(async (payload) => {
 
   await payload.updateGlobal({
     slug: 'siteSettings',
-    data: siteSettings,
+    data: {
+      name: siteSettings.name,
+      tagline: siteSettings.tagline,
+      description: siteSettings.description,
+      defaultTitle: siteSettings.defaultTitle,
+      defaultDescription: siteSettings.defaultDescription,
+      contactEmail: siteSettings.contactEmail,
+      ...(siteSettings.brand ? { brand: siteSettings.brand } : {}),
+    },
     overrideAccess: true,
   })
   await payload.updateGlobal({
     slug: 'navigation',
     data: {
-      logoText: navigation.logoText,
+      ...(navigation.logoSource ? { logoSource: navigation.logoSource } : {}),
+      ...(navigation.logo ? { logo: navigation.logo } : {}),
       items: navigation.items,
       cta: navigation.cta || null,
     },
@@ -114,7 +141,7 @@ await withPayload(async (payload) => {
       title: page.title,
       slug: page.slug,
       description: page.description,
-      seo: page.seo,
+      meta: mapSeoToPayloadMeta(page.seo),
       blocks: page.blocks.map((block) => mapSectionBlockToPayload(block)),
     })
     results.pages[action] += 1
@@ -130,7 +157,7 @@ await withPayload(async (payload) => {
       outcome: study.outcome,
       stats: study.stats,
       testimonial: study.testimonial || {},
-      seo: study.seo,
+      meta: mapSeoToPayloadMeta(study.seo),
     })
     results.caseStudies[action] += 1
   }

@@ -1,10 +1,11 @@
 import type { Metadata } from 'next'
 import { Manrope, Sora } from 'next/font/google'
-import type { ReactNode } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 
-import './globals.css'
+import '../globals.css'
 
 import { FooterSection, HeaderSection } from '@/components/sections'
+import { getSiteThemeVariables } from '@/lib/brand/theme'
 import { getContentSource } from '@/lib/content/get-content-source'
 import { buildSiteMetadata } from '@/lib/seo'
 
@@ -24,17 +25,25 @@ export async function generateMetadata(): Promise<Metadata> {
   return buildSiteMetadata(site)
 }
 
-export default async function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
+export default async function SiteLayout({ children }: Readonly<{ children: ReactNode }>) {
   const source = getContentSource()
-  const [navigation, footer] = await Promise.all([source.getNavigation(), source.getFooter()])
+  const [site, navigation, footer] = await Promise.all([
+    source.getSiteConfig(),
+    source.getNavigation(),
+    source.getFooter(),
+  ])
+  const themeVariables = getSiteThemeVariables(site)
 
   return (
     <html lang="en">
-      <body className={`${headingFont.variable} ${bodyFont.variable} bg-[var(--color-surface)] text-[var(--color-text)] antialiased`}>
+      <body
+        className={`${headingFont.variable} ${bodyFont.variable} bg-[var(--color-surface)] text-[var(--color-text)] antialiased`}
+        style={themeVariables as CSSProperties}
+      >
         <a className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-white focus:px-4 focus:py-2" href="#main-content">
           Skip to content
         </a>
-        <HeaderSection navigation={navigation} />
+        <HeaderSection navigation={navigation} site={site} />
         <main id="main-content">{children}</main>
         <FooterSection footer={footer} />
       </body>

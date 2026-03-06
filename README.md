@@ -8,6 +8,8 @@ Reusable starter for high-volume marketing site delivery with one frontend and t
 - TypeScript (strict)
 - Tailwind CSS v4
 - Payload CMS (optional via `CMS_ENABLED`)
+- Payload SEO plugin
+- Payload Redirects plugin
 - Turso/libSQL (`@payloadcms/db-sqlite`)
 - Cloudflare R2 (S3-compatible via `@payloadcms/storage-s3`)
 - Zod
@@ -20,9 +22,10 @@ Reusable starter for high-volume marketing site delivery with one frontend and t
 - `npm run lint`
 - `npm run typecheck`
 - `npm run test:integration` (seed idempotence + fallback policy integration checks)
-- `npm run verify:cms` (validates CMS env + libSQL/SQLite query + R2 endpoint/public URL)
+- `npm run verify:cms` (validates CMS env + libSQL/SQLite query + active media storage mode)
 - `npm run payload:seed` (imports file content from `/content` into Payload globals/collections)
 - `npm run payload:create-admin` (creates first Payload admin user)
+- `npm run payload:push-local-to-remote` (copies local Payload DB content to Turso and uploads local media files to S3/R2)
 
 ## Exact Setup
 
@@ -32,6 +35,8 @@ Reusable starter for high-volume marketing site delivery with one frontend and t
 npm install
 cp .env.example .env
 ```
+
+`.env.example` uses `DATABASE_URL=file:./payload.db` by default, so the fastest local CMS setup does not require Turso or S3/R2.
 
 ### 2) Mode A: File Content (`CMS_ENABLED=false`)
 
@@ -64,8 +69,20 @@ Set `.env`:
 CMS_ENABLED=true
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 PAYLOAD_SECRET=replace-with-long-random-secret
+DATABASE_URL=file:./payload.db
+PAYLOAD_LOCAL_MEDIA_DIR=media
+```
+
+That setup stores:
+
+- structured CMS data in local SQLite
+- uploaded media files on disk in `./media`
+
+If you want Turso + S3/R2:
+
+```bash
 DATABASE_URL=libsql://<db-name>-<org>.turso.io
-TURSO_AUTH_TOKEN=<turso-token> # required only for libsql://
+TURSO_AUTH_TOKEN=<turso-token>
 S3_ENDPOINT=https://<account-id>.r2.cloudflarestorage.com
 S3_BUCKET=<r2-bucket-name>
 S3_ACCESS_KEY_ID=<r2-access-key-id>
@@ -73,10 +90,12 @@ S3_SECRET_ACCESS_KEY=<r2-secret-access-key>
 S3_PUBLIC_BASE_URL=https://<your-public-media-domain>
 ```
 
-Local-only CMS dev fallback (if you do not want remote Turso while developing):
+Optional env vars:
 
 ```bash
-DATABASE_URL=file:./payload.db
+RESEND_API_KEY=
+CONTACT_FROM_EMAIL=
+CONTACT_TO_EMAIL=
 ```
 
 Validate CMS config and DB connectivity:
@@ -99,11 +118,10 @@ npm run payload:seed
 Create the first admin user:
 
 ```bash
-npm run payload:create-admin -- --password "replace-with-strong-password"
+npm run payload:create-admin -- --email "admin@example.com" --password "replace-with-strong-password"
 ```
 
-Default admin email is `rahman.daniel3@gmail.com`.  
-Override via `--email` or `PAYLOAD_ADMIN_EMAIL`.
+If `--email` is omitted, the script defaults to `admin@example.com`.
 
 Run:
 
@@ -114,8 +132,55 @@ npm run dev
 Verify:
 
 - `http://localhost:3000/admin` opens Payload admin/login
-- `http://localhost:3000/api/contact` persists submissions into `submissions`
-- media collection uses R2 S3-compatible storage adapter
+- `POST http://localhost:3000/api/contact` persists submissions into `submissions`, for example:
+
+```bash
+curl -X POST http://localhost:3000/api/contact \
+  -H "content-type: application/json" \
+  -d '{
+    "name": "Test User",
+    "email": "test@example.com",
+    "message": "Hello from README verification",
+    "honey": ""
+  }'
+```
+
+- media collection stores files in `./media` when S3 env vars are empty
+- media collection switches to the R2 S3-compatible storage adapter when all `S3_*` vars are set
+
+### 4) Push Local CMS Data To Turso + S3/R2
+
+Once you have been working locally with:
+
+- `DATABASE_URL=file:./payload.db`
+- `PAYLOAD_LOCAL_MEDIA_DIR=media`
+
+and you are ready to move that data into Turso + S3/R2, update `.env` to the remote values above and run:
+
+```bash
+npm run payload:push-local-to-remote
+```
+
+Defaults:
+
+- source database: `file:./payload.db`
+- source media directory: `./media`
+
+Optional flags:
+
+```bash
+npm run payload:push-local-to-remote -- --source-db file:./payload-local.db
+npm run payload:push-local-to-remote -- --source-media-dir ./media
+npm run payload:push-local-to-remote -- --media-prefix my-site
+```
+
+What the script does:
+
+- uploads local files from the source media directory into the configured S3/R2 bucket
+- copies Payload tables from the source SQLite DB into the target Turso DB
+- preserves media filenames and existing `prefix` values when present
+
+The target bootstrap skips ephemeral admin/session tables and is intended for initial remote population, not ongoing two-way sync.
 
 ## Build and Type Safety
 
@@ -147,15 +212,14 @@ Adapter layer:
 
 `getContentSource()` switches implementation by `CMS_ENABLED`, so sections/pages are source-agnostic.
 
-## Payload Fallback Policy
+## Payload Fallback Behavior
 
-Payload mode can read from file content when CMS data is empty, controlled by `CMS_FILE_FALLBACK_MODE`:
+Payload mode still falls back to file content when the CMS is empty:
 
-- `always` (default in development): fallback for empty initial state and runtime Payload errors
-- `bootstrap` (default in production): fallback only for empty initial state, never for runtime Payload errors
-- `never`: no fallback to `/content` in Payload mode
+- development: fallback for empty state and runtime errors
+- production: fallback only for empty initial state
 
-Recommended production setting is `bootstrap` or `never`. Do not allow runtime DB errors to be hidden by fallback.
+That behavior is now internal, not environment-driven.
 
 ## Section System
 
@@ -186,7 +250,7 @@ The following are page-level layout sections (not part of `SectionBlock`):
 ## Payload Configuration
 
 - Globals: `siteSettings`, `navigation`, `footer`
-- Collections: `pages`, `caseStudies`, `faqs`, `media`, `submissions`
+- Collections: `pages`, `caseStudies`, `faqs`, `media`, `submissions`, `redirects`
 - Auth collection: `users`
 
 Config entry:
@@ -194,6 +258,12 @@ Config entry:
 - [payload.config.ts](./payload.config.ts)
 
 R2 public URL generation is configured on the `media` collection via `generateFileURL`, using `S3_PUBLIC_BASE_URL`.
+
+Uploads are automatically namespaced by project hostname or folder name, so shared R2 buckets still show per-project directories without extra env setup.
+
+When S3 is not configured, the same `media` collection falls back to Payload local disk storage via `PAYLOAD_LOCAL_MEDIA_DIR` (default `media`).
+
+The official SEO plugin adds an SEO tab to `pages` and `caseStudies`, and the official Redirects plugin stores redirects in the `redirects` collection. Frontend redirects are applied through [`middleware.ts`](./middleware.ts).
 
 ## Contact Form Behavior
 

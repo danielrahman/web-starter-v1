@@ -14,6 +14,16 @@ body {
   margin: 0;
   background: var(--color-surface);
   color: var(--color-text);
+  font-family: var(--site-font-body, var(--font-body), ui-sans-serif, system-ui, sans-serif);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--site-font-heading, var(--font-heading), ui-sans-serif, system-ui, sans-serif);
 }
 
 a {

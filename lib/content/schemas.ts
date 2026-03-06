@@ -14,6 +14,40 @@ const seoSchema = z.object({
   ogImage: z.string().optional(),
 })
 
+const hexColorSchema = z.string().regex(/^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/)
+
+const imageAssetSchema = z.object({
+  url: z.string().min(1),
+  alt: z.string().min(1),
+})
+
+const brandThemeSchema = z.object({
+  colors: z
+    .object({
+      primaryColor: hexColorSchema.optional(),
+      primaryColorStrong: hexColorSchema.optional(),
+      surfaceColor: hexColorSchema.optional(),
+      surfaceElevatedColor: hexColorSchema.optional(),
+      textColor: hexColorSchema.optional(),
+      textMutedColor: hexColorSchema.optional(),
+      borderColor: hexColorSchema.optional(),
+    })
+    .optional(),
+  fonts: z
+    .object({
+      heading: z.enum(['sora', 'manrope', 'systemSans', 'systemSerif']).optional(),
+      body: z.enum(['sora', 'manrope', 'systemSans', 'systemSerif']).optional(),
+    })
+    .optional(),
+})
+
+const brandSchema = z.object({
+  logo: imageAssetSchema.optional(),
+  favicon: imageAssetSchema.optional(),
+  socialImage: imageAssetSchema.optional(),
+  theme: brandThemeSchema.optional(),
+})
+
 const featureItemSchema = z.object({
   title: z.string().min(1),
   description: z.string().min(1),
@@ -153,10 +187,12 @@ export const siteConfigSchema = z.object({
   defaultTitle: z.string().min(1),
   defaultDescription: z.string().min(1),
   contactEmail: z.string().email().optional(),
+  brand: brandSchema.optional(),
 })
 
 export const navigationSchema = z.object({
-  logoText: z.string().min(1),
+  logoSource: z.enum(['siteBrand', 'custom']).optional(),
+  logo: imageAssetSchema.optional(),
   items: z.array(linkItemSchema),
   cta: linkItemSchema.optional(),
 })

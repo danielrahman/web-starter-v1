@@ -14,7 +14,7 @@ function createFileFallbackStub(overrides: Partial<ContentSource> = {}): Content
       defaultDescription: 'File default description',
     }),
     getNavigation: async () => ({
-      logoText: 'File Site',
+      logoSource: 'siteBrand',
       items: [],
     }),
     getFooter: async () => ({

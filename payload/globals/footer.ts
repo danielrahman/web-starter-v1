@@ -2,6 +2,10 @@ import type { GlobalConfig } from 'payload'
 
 export const FooterGlobal: GlobalConfig = {
   slug: 'footer',
+  admin: {
+    description: 'Footer copy, grouped links and legal links shown across the website.',
+    group: 'Site',
+  },
   fields: [
     {
       name: 'blurb',

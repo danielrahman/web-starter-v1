@@ -1,8 +1,22 @@
-import type { CaseStudy, FAQGroup, Footer, Navigation, Page, SiteConfig } from '@/lib/content/models'
+import type {
+  BrandColors,
+  BrandConfig,
+  BrandFontPreset,
+  BrandTheme,
+  CaseStudy,
+  FAQGroup,
+  Footer,
+  ImageAsset,
+  Navigation,
+  NavigationLogoSource,
+  Page,
+  SiteConfig,
+} from '@/lib/content/models'
 import { pageSchema } from '@/lib/content/schemas'
 
 import { normalizeBlock } from './block-mapper'
 import { asArray, asBoolean, asObject, asString, optionalString } from './coerce'
+import { normalizePayloadSeo } from './seo'
 
 const EMPTY_SITE_CONFIG: SiteConfig = {
   name: 'Marketing Site',
@@ -13,9 +27,12 @@ const EMPTY_SITE_CONFIG: SiteConfig = {
 }
 
 const EMPTY_NAVIGATION: Navigation = {
-  logoText: 'Marketing Site',
+  logoSource: 'siteBrand',
   items: [],
 }
+
+const BRAND_FONT_PRESETS: BrandFontPreset[] = ['sora', 'manrope', 'systemSans', 'systemSerif']
+const NAVIGATION_LOGO_SOURCES: NavigationLogoSource[] = ['siteBrand', 'custom']
 
 const EMPTY_FOOTER: Footer = {
   blurb: '',
@@ -26,6 +43,7 @@ const EMPTY_FOOTER: Footer = {
 
 export function normalizeSiteSettingsGlobal(rawGlobal: unknown): { value: SiteConfig; isEmpty: boolean } {
   const global = asObject(rawGlobal)
+  const brand = normalizeBrandConfig(global.brand)
 
   return {
     value: {
@@ -35,11 +53,13 @@ export function normalizeSiteSettingsGlobal(rawGlobal: unknown): { value: SiteCo
       defaultTitle: asString(global.defaultTitle, EMPTY_SITE_CONFIG.defaultTitle),
       defaultDescription: asString(global.defaultDescription, EMPTY_SITE_CONFIG.defaultDescription),
       contactEmail: optionalString(global.contactEmail),
+      brand,
     },
     isEmpty:
       !asString(global.name, '').trim() &&
       !asString(global.tagline, '').trim() &&
-      !asString(global.defaultTitle, '').trim(),
+      !asString(global.defaultTitle, '').trim() &&
+      !brand,
   }
 }
 
@@ -47,14 +67,17 @@ export function normalizeNavigationGlobal(rawGlobal: unknown): { value: Navigati
   const global = asObject(rawGlobal)
   const items = asArray(global.items).map(normalizeLinkItem).filter(Boolean) as Navigation['items']
   const cta = normalizeLinkItem(global.cta)
+  const logo = normalizeImageAsset(global.logo)
+  const logoSource = normalizeNavigationLogoSource(global.logoSource)
 
   return {
     value: {
-      logoText: asString(global.logoText, EMPTY_NAVIGATION.logoText),
+      logoSource: logoSource || EMPTY_NAVIGATION.logoSource,
+      logo,
       items,
       cta: cta || undefined,
     },
-    isEmpty: !asString(global.logoText, '').trim() && items.length === 0 && !cta,
+    isEmpty: !logoSource && !logo && items.length === 0 && !cta,
   }
 }
 
@@ -94,13 +117,7 @@ export function normalizePageDocument(input: unknown): Page {
     slug: asString(value.slug, 'untitled-page'),
     title: asString(value.title, 'Untitled Page'),
     description: optionalString(value.description),
-    seo: {
-      title: optionalString(asObject(value.seo).title),
-      description: optionalString(asObject(value.seo).description),
-      canonicalPath: optionalString(asObject(value.seo).canonicalPath),
-      noIndex: asBoolean(asObject(value.seo).noIndex),
-      ogImage: optionalString(asObject(value.seo).ogImage),
-    },
+    seo: normalizePayloadSeo(value),
     blocks: asArray(value.blocks)
       .map(normalizeBlock)
       .filter(Boolean) as Page['blocks'],
@@ -135,13 +152,7 @@ export function normalizeCaseStudyDocument(input: unknown): CaseStudy {
           company: optionalString(asObject(value.testimonial).company),
         }
       : undefined,
-    seo: {
-      title: optionalString(asObject(value.seo).title),
-      description: optionalString(asObject(value.seo).description),
-      canonicalPath: optionalString(asObject(value.seo).canonicalPath),
-      noIndex: asBoolean(asObject(value.seo).noIndex),
-      ogImage: optionalString(asObject(value.seo).ogImage),
-    },
+    seo: normalizePayloadSeo(value),
   }
 }
 
@@ -176,4 +187,114 @@ function normalizeLinkItem(input: unknown) {
     href,
     external: asBoolean(value.external),
   }
+}
+
+function normalizeBrandConfig(input: unknown): BrandConfig | undefined {
+  const value = asObject(input)
+  const logo = normalizeImageAsset(value.logo)
+  const favicon = normalizeImageAsset(value.favicon)
+  const socialImage = normalizeImageAsset(value.socialImage)
+  const theme = normalizeBrandTheme(value.theme)
+
+  if (!logo && !favicon && !socialImage && !theme) {
+    return undefined
+  }
+
+  return {
+    logo,
+    favicon,
+    socialImage,
+    theme,
+  }
+}
+
+function normalizeBrandTheme(input: unknown): BrandTheme | undefined {
+  const value = asObject(input)
+  const colors = normalizeBrandColors(value.colors)
+  const fonts = normalizeBrandFonts(value.fonts)
+
+  if (!colors && !fonts) {
+    return undefined
+  }
+
+  return {
+    colors,
+    fonts,
+  }
+}
+
+function normalizeBrandColors(input: unknown): BrandColors | undefined {
+  const value = asObject(input)
+
+  const colors: BrandColors = {
+    primaryColor: normalizeHexColor(value.primaryColor),
+    primaryColorStrong: normalizeHexColor(value.primaryColorStrong),
+    surfaceColor: normalizeHexColor(value.surfaceColor),
+    surfaceElevatedColor: normalizeHexColor(value.surfaceElevatedColor),
+    textColor: normalizeHexColor(value.textColor),
+    textMutedColor: normalizeHexColor(value.textMutedColor),
+    borderColor: normalizeHexColor(value.borderColor),
+  }
+
+  return Object.values(colors).some(Boolean) ? colors : undefined
+}
+
+function normalizeBrandFonts(input: unknown): BrandTheme['fonts'] | undefined {
+  const value = asObject(input)
+  const heading = normalizeBrandFontPreset(value.heading)
+  const body = normalizeBrandFontPreset(value.body)
+
+  if (!heading && !body) {
+    return undefined
+  }
+
+  return {
+    heading,
+    body,
+  }
+}
+
+function normalizeImageAsset(input: unknown): ImageAsset | undefined {
+  const value = asObject(input)
+  const url = optionalString(value.url)
+  const alt = optionalString(value.alt)
+
+  if (!url || !alt) {
+    return undefined
+  }
+
+  return {
+    url,
+    alt,
+  }
+}
+
+function normalizeHexColor(input: unknown): string | undefined {
+  const value = optionalString(input)
+
+  if (!value || !/^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(value)) {
+    return undefined
+  }
+
+  return value
+}
+
+function normalizeBrandFontPreset(input: unknown): BrandFontPreset | undefined {
+  const value = optionalString(input)
+
+  if (!value || !BRAND_FONT_PRESETS.includes(value as BrandFontPreset)) {
+    return undefined
+  }
+
+  return value as BrandFontPreset
+}
+
+function normalizeNavigationLogoSource(input: unknown): NavigationLogoSource | undefined {
+  const value = optionalString(input)
+
+  if (!value || !NAVIGATION_LOGO_SOURCES.includes(value as NavigationLogoSource)) {
+    return undefined
+  }
+
+  return value as NavigationLogoSource
 }

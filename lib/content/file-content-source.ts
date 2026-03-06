@@ -28,44 +28,49 @@ const CONTENT_ROOT = path.join(process.cwd(), 'content')
 
 export class FileContentSource implements ContentSource {
   async getSiteConfig(): Promise<SiteConfig> {
-    return this.readJSON(['site.json'], siteConfigSchema)
+    return this.readJSON('site.json', siteConfigSchema)
   }
 
   async getNavigation(): Promise<Navigation> {
-    return this.readJSON(['navigation.json'], navigationSchema)
+    return this.readJSON('navigation.json', navigationSchema)
   }
 
   async getFooter(): Promise<Footer> {
-    return this.readJSON(['footer.json'], footerSchema)
+    return this.readJSON('footer.json', footerSchema)
   }
 
   async getPages(): Promise<Page[]> {
     const pagesDir = path.join(CONTENT_ROOT, 'pages')
-    const files = await readdir(pagesDir)
-
-    const pages = await Promise.all(
-      files
-        .filter((name) => name.endsWith('.json'))
-        .map((name) => this.readJSON(['pages', name], pageSchema)),
-    )
+    const files = await this.collectJSONFiles(pagesDir)
+    const pages = await Promise.all(files.map((filePath) => this.readJSON(filePath, pageSchema)))
 
     return pages.sort((a, b) => a.slug.localeCompare(b.slug))
   }
 
   async getPageBySlug(slug: string): Promise<Page | null> {
-    const normalizedSlug = slug.trim() === '' ? 'home' : slug
-    const filePath = path.join(CONTENT_ROOT, 'pages', `${normalizedSlug}.json`)
+    const normalizedSlug = normalizePageSlug(slug) || 'home'
+    const candidatePaths = [
+      path.join('pages', `${normalizedSlug}.json`),
+      path.join('pages', normalizedSlug, 'index.json'),
+    ]
 
-    try {
-      const raw = await readFile(filePath, 'utf8')
-      return pageSchema.parse(JSON.parse(raw))
-    } catch {
-      return null
+    for (const candidatePath of candidatePaths) {
+      try {
+        return await this.readJSON(candidatePath, pageSchema)
+      } catch (error) {
+        if (isNotFoundError(error)) {
+          continue
+        }
+
+        throw error
+      }
     }
+
+    return null
   }
 
   async getCaseStudies(limit?: number): Promise<CaseStudy[]> {
-    const data = await this.readJSON(['collections', 'case-studies.json'], caseStudiesCollectionSchema)
+    const data = await this.readJSON(path.join('collections', 'case-studies.json'), caseStudiesCollectionSchema)
     return typeof limit === 'number' ? data.items.slice(0, limit) : data.items
   }
 
@@ -75,7 +80,7 @@ export class FileContentSource implements ContentSource {
   }
 
   async getFAQGroup(slug: string): Promise<FAQGroup | null> {
-    const faqCollection = await this.readJSON(['collections', 'faq.json'], faqCollectionSchema)
+    const faqCollection = await this.readJSON(path.join('collections', 'faq.json'), faqCollectionSchema)
     return faqCollection.groups.find((group) => group.slug === slug) || null
   }
 
@@ -91,10 +96,41 @@ export class FileContentSource implements ContentSource {
     }
   }
 
-  private async readJSON<T>(segments: string[], schema: z.ZodType<T>): Promise<T> {
-    const fullPath = path.join(CONTENT_ROOT, ...segments)
+  private async readJSON<T>(relativePath: string, schema: z.ZodType<T>): Promise<T> {
+    const fullPath = path.join(CONTENT_ROOT, relativePath)
     const raw = await readFile(fullPath, 'utf8')
     const parsed = JSON.parse(raw)
     return schema.parse(parsed)
   }
+
+  private async collectJSONFiles(directoryPath: string): Promise<string[]> {
+    const entries = await readdir(directoryPath, { withFileTypes: true })
+    const relativePaths: string[] = []
+
+    for (const entry of entries) {
+      const absolutePath = path.join(directoryPath, entry.name)
+
+      if (entry.isDirectory()) {
+        relativePaths.push(...(await this.collectJSONFiles(absolutePath)))
+        continue
+      }
+
+      if (!entry.isFile() || !entry.name.endsWith('.json')) {
+        continue
+      }
+
+      relativePaths.push(path.relative(CONTENT_ROOT, absolutePath))
+    }
+
+    return relativePaths
+  }
+}
+
+function normalizePageSlug(slug: string): string {
+  const normalized = slug.trim().replace(/^\/+|\/+$/g, '')
+  return normalized || 'home'
+}
+
+function isNotFoundError(error: unknown): boolean {
+  return Boolean(error && typeof error === 'object' && 'code' in error && (error as { code?: string }).code === 'ENOENT')
 }

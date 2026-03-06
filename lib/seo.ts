@@ -4,6 +4,7 @@ import { siteConfig } from '@/site.config'
 import { absoluteUrl } from '@/lib/utils'
 import type { Page, SeoMeta, SiteConfig } from '@/lib/content/models'
 import { siteUrl } from '@/lib/env'
+import { getPagePath } from '@/lib/site-paths'
 
 export function buildMetadataFromPage(page: Page, site: SiteConfig): Metadata {
   const seo = page.seo
@@ -16,6 +17,7 @@ export function buildMetadataFromPage(page: Page, site: SiteConfig): Metadata {
     description,
     canonicalPath,
     seo,
+    site,
   })
 }
 
@@ -24,6 +26,7 @@ export function buildSiteMetadata(site: SiteConfig): Metadata {
     title: site.defaultTitle,
     description: site.defaultDescription,
     canonicalPath: '/',
+    site,
   })
 }
 
@@ -32,11 +35,15 @@ type MetadataArgs = {
   description: string
   canonicalPath: string
   seo?: SeoMeta
+  site?: SiteConfig
 }
 
-export function buildMetadata({ title, description, canonicalPath, seo }: MetadataArgs): Metadata {
+export function buildMetadata({ title, description, canonicalPath, seo, site }: MetadataArgs): Metadata {
   const canonical = absoluteUrl(canonicalPath, siteUrl)
-  const ogImage = seo?.ogImage || absoluteUrl(siteConfig.ogImagePath, siteUrl)
+  const ogImage = resolveImageUrl(seo?.ogImage || site?.brand?.socialImage?.url || siteConfig.ogImagePath)
+  const favicon = resolveImageUrl(site?.brand?.favicon?.url)
+  const openGraphImages = ogImage ? [{ url: ogImage }] : undefined
+  const twitterImages = ogImage ? [ogImage] : undefined
 
   return {
     metadataBase: new URL(siteUrl),
@@ -56,21 +63,36 @@ export function buildMetadata({ title, description, canonicalPath, seo }: Metada
       title,
       description,
       url: canonical,
-      images: [
-        {
-          url: ogImage,
-        },
-      ],
+      images: openGraphImages,
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
-      images: [ogImage],
+      images: twitterImages,
     },
+    icons: favicon
+      ? {
+          icon: [{ url: favicon }],
+          shortcut: [{ url: favicon }],
+          apple: [{ url: favicon }],
+        }
+      : undefined,
   }
 }
 
 function normalizeCanonicalPath(slug: string): string {
-  return slug === 'home' ? '/' : `/${slug}`
+  return getPagePath(slug)
+}
+
+function resolveImageUrl(pathname?: string): string | undefined {
+  if (!pathname) {
+    return undefined
+  }
+
+  if (/^https?:\/\//.test(pathname)) {
+    return pathname
+  }
+
+  return absoluteUrl(pathname, siteUrl)
 }

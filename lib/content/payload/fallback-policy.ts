@@ -1,4 +1,4 @@
-import type { CmsFileFallbackMode } from '@/lib/env'
+export type CmsFileFallbackMode = 'always' | 'bootstrap' | 'never'
 
 export type PayloadFallbackPolicy = {
   allowEmptyStateFallback: boolean

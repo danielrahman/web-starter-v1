@@ -9,6 +9,37 @@ export type ImageAsset = {
   alt: string
 }
 
+export type BrandFontPreset = 'sora' | 'manrope' | 'systemSans' | 'systemSerif'
+
+export type BrandColors = {
+  primaryColor?: string
+  primaryColorStrong?: string
+  surfaceColor?: string
+  surfaceElevatedColor?: string
+  textColor?: string
+  textMutedColor?: string
+  borderColor?: string
+}
+
+export type BrandFonts = {
+  heading?: BrandFontPreset
+  body?: BrandFontPreset
+}
+
+export type BrandTheme = {
+  colors?: BrandColors
+  fonts?: BrandFonts
+}
+
+export type BrandConfig = {
+  logo?: ImageAsset
+  favicon?: ImageAsset
+  socialImage?: ImageAsset
+  theme?: BrandTheme
+}
+
+export type NavigationLogoSource = 'siteBrand' | 'custom'
+
 export type SeoMeta = {
   title?: string
   description?: string
@@ -24,10 +55,12 @@ export type SiteConfig = {
   defaultTitle: string
   defaultDescription: string
   contactEmail?: string
+  brand?: BrandConfig
 }
 
 export type Navigation = {
-  logoText: string
+  logoSource?: NavigationLogoSource
+  logo?: ImageAsset
   items: LinkItem[]
   cta?: LinkItem
 }

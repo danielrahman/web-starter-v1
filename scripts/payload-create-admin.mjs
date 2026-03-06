@@ -1,18 +1,18 @@
 import { ensureCmsEnabled, getDocId, readFlagValue, withPayload } from './_shared/payload-cli-utils.mjs'
 
-const DEFAULT_ADMIN_EMAIL = 'rahman.daniel3@gmail.com'
+const DEFAULT_ADMIN_EMAIL = 'admin@example.com'
 
 ensureCmsEnabled('creating an admin user')
 
-const emailInput = readFlagValue('--email') || process.env.PAYLOAD_ADMIN_EMAIL || DEFAULT_ADMIN_EMAIL
-const password = readFlagValue('--password') || process.env.PAYLOAD_ADMIN_PASSWORD
+const emailInput = readFlagValue('--email') || DEFAULT_ADMIN_EMAIL
+const password = readFlagValue('--password')
 const resetPassword = process.argv.includes('--reset-password')
 const email = emailInput?.trim().toLowerCase()
 
 if (!email || !password) {
-  console.error('Missing password. Use --password flag or PAYLOAD_ADMIN_PASSWORD env var.')
+  console.error('Missing password. Use the --password flag.')
   console.error(`Default email is ${DEFAULT_ADMIN_EMAIL}.`)
-  console.error('Example: npm run payload:create-admin -- --password "ChangeMe123!"')
+  console.error('Example: npm run payload:create-admin -- --email "admin@example.com" --password "ChangeMe123!"')
   process.exit(1)
 }
 
