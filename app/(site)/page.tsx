@@ -1,20 +1,11 @@
 import { notFound } from 'next/navigation'
 
 import { SectionRenderer } from '@/components/sections'
+import { generatePageMetadata } from '@/lib/content/page-metadata'
 import { getContentSource } from '@/lib/content/get-content-source'
-import { buildMetadataFromPage } from '@/lib/seo'
 
 export async function generateMetadata() {
-  const source = getContentSource()
-  const [page, site] = await Promise.all([source.getPageBySlug('home'), source.getSiteConfig()])
-
-  if (!page) {
-    return {
-      title: site.defaultTitle,
-    }
-  }
-
-  return buildMetadataFromPage(page, site)
+  return generatePageMetadata('home')
 }
 
 export default async function HomePage() {

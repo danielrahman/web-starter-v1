@@ -2,8 +2,8 @@ import { notFound } from 'next/navigation'
 
 import { SectionRenderer } from '@/components/sections'
 import { getContentSource } from '@/lib/content/get-content-source'
+import { generatePageMetadata } from '@/lib/content/page-metadata'
 import { cmsEnabled } from '@/lib/env'
-import { buildMetadataFromPage } from '@/lib/seo'
 
 type SlugPageProps = {
   params: Promise<{ slug: string }>
@@ -22,16 +22,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: SlugPageProps) {
   const { slug } = await params
-  const source = getContentSource()
-  const [page, site] = await Promise.all([source.getPageBySlug(slug), source.getSiteConfig()])
-
-  if (!page) {
-    return {
-      title: site.defaultTitle,
-    }
-  }
-
-  return buildMetadataFromPage(page, site)
+  return generatePageMetadata(slug)
 }
 
 export default async function SlugPage({ params }: SlugPageProps) {
