@@ -19,6 +19,10 @@ export function optionalString(value: unknown): string | undefined {
   return stringValue.trim() ? stringValue : undefined
 }
 
+export function hasText(value: unknown): boolean {
+  return Boolean(optionalString(value))
+}
+
 export function asBoolean(value: unknown): boolean | undefined {
   return typeof value === 'boolean' ? value : undefined
 }

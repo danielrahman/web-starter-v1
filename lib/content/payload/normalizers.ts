@@ -15,7 +15,7 @@ import type {
 import { pageSchema } from '@/lib/content/schemas'
 
 import { normalizeBlock } from './block-mapper'
-import { asArray, asObject, asString, optionalString } from './coerce'
+import { asArray, asObject, asString, hasText, optionalString } from './coerce'
 import { normalizeLinkItem } from './link-item'
 import { normalizePayloadSeo } from './seo'
 
@@ -57,9 +57,9 @@ export function normalizeSiteSettingsGlobal(rawGlobal: unknown): { value: SiteCo
       brand,
     },
     isEmpty:
-      !asString(global.name, '').trim() &&
-      !asString(global.tagline, '').trim() &&
-      !asString(global.defaultTitle, '').trim() &&
+      !hasText(global.name) &&
+      !hasText(global.tagline) &&
+      !hasText(global.defaultTitle) &&
       !brand,
   }
 }
@@ -104,10 +104,10 @@ export function normalizeFooterGlobal(rawGlobal: unknown): { value: Footer; isEm
       copyright: asString(global.copyright, EMPTY_FOOTER.copyright),
     },
     isEmpty:
-      !asString(global.blurb, '').trim() &&
+      !hasText(global.blurb) &&
       columns.length === 0 &&
       asArray(global.legalLinks).length === 0 &&
-      !asString(global.copyright, '').trim(),
+      !hasText(global.copyright),
   }
 }
 
