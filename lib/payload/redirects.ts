@@ -1,4 +1,5 @@
 import { getCollectionDocumentPath } from '@/lib/site-paths'
+import { optionalTrimmedString } from '@/lib/string-utils'
 
 type ResolvedRedirect = {
   destination: string
@@ -16,7 +17,7 @@ function asObject(input: unknown): Record<string, unknown> {
 }
 
 function asString(input: unknown): string | undefined {
-  return typeof input === 'string' && input.trim() ? input.trim() : undefined
+  return optionalTrimmedString(input)
 }
 
 function asRedirectStatus(input: unknown): ResolvedRedirect['statusCode'] {

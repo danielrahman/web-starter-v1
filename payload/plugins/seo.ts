@@ -3,9 +3,10 @@ import type { SEOPluginConfig } from '@payloadcms/plugin-seo/types'
 import type { Field } from 'payload'
 
 import { getCaseStudyPath, getPagePath } from '@/lib/site-paths'
+import { optionalTrimmedString } from '@/lib/string-utils'
 
 function readString(value: unknown): string | undefined {
-  return typeof value === 'string' && value.trim() ? value.trim() : undefined
+  return optionalTrimmedString(value)
 }
 
 function buildSeoFields({ defaultFields }: { defaultFields: Field[] }): Field[] {
