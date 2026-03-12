@@ -142,15 +142,7 @@ export class PayloadContentSource implements ContentSource {
           },
         })
 
-        const page = asArray(result.docs)[0]
-        if (!page) {
-          return { isEmpty: true, value: null }
-        }
-
-        return {
-          value: normalizePageDocument(page),
-          isEmpty: false,
-        }
+        return this.normalizeFirstDocOrEmpty(result.docs, normalizePageDocument)
       },
       fallback: (source) => source.getPageBySlug(slug),
     })
@@ -194,15 +186,7 @@ export class PayloadContentSource implements ContentSource {
           },
         })
 
-        const caseStudy = asArray(result.docs)[0]
-        if (!caseStudy) {
-          return { isEmpty: true, value: null }
-        }
-
-        return {
-          value: normalizeCaseStudyDocument(caseStudy),
-          isEmpty: false,
-        }
+        return this.normalizeFirstDocOrEmpty(result.docs, normalizeCaseStudyDocument)
       },
       fallback: (source) => source.getCaseStudyBySlug(slug),
     })
@@ -223,15 +207,7 @@ export class PayloadContentSource implements ContentSource {
           },
         })
 
-        const faqGroup = asArray(result.docs)[0]
-        if (!faqGroup) {
-          return { isEmpty: true, value: null }
-        }
-
-        return {
-          value: normalizeFAQGroupDocument(faqGroup, slug),
-          isEmpty: false,
-        }
+        return this.normalizeFirstDocOrEmpty(result.docs, (document) => normalizeFAQGroupDocument(document, slug))
       },
       fallback: (source) => source.getFAQGroup(slug),
     })
@@ -316,6 +292,22 @@ export class PayloadContentSource implements ContentSource {
       }
 
       throw error
+    }
+  }
+
+  private normalizeFirstDocOrEmpty<T>(
+    docs: unknown[] | undefined,
+    normalize: (document: unknown) => T,
+  ): { isEmpty: boolean; value: T | null } {
+    const document = asArray(docs)[0]
+
+    if (!document) {
+      return { isEmpty: true, value: null }
+    }
+
+    return {
+      value: normalize(document),
+      isEmpty: false,
     }
   }
 }
