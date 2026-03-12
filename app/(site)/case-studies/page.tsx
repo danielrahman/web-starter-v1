@@ -4,6 +4,7 @@ import { ListingTeaserSection, SimplePageHeaderSection } from '@/components/sect
 import { getContentSource } from '@/lib/content/get-content-source'
 import { generatePageMetadata } from '@/lib/content/page-metadata'
 import { getRequiredPageBySlug } from '@/lib/content/required-page'
+import { getCaseStudyPath } from '@/lib/site-paths'
 
 export async function generateMetadata(): Promise<Metadata> {
   return generatePageMetadata('case-studies')
@@ -19,7 +20,7 @@ export default async function CaseStudiesPage() {
       <ListingTeaserSection
         items={caseStudies.map((study) => ({
           description: study.summary,
-          href: `/case-studies/${study.slug}`,
+          href: getCaseStudyPath(study.slug),
           title: study.title,
         }))}
         title="Project outcomes"

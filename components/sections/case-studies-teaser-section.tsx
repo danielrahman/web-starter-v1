@@ -1,6 +1,7 @@
 import Link from 'next/link'
 
 import type { CaseStudiesTeaserBlock, CaseStudy } from '@/lib/content/models'
+import { getCaseStudyPath } from '@/lib/site-paths'
 import { Card, GridThree, Heading, Lead, Section } from '@/components/ui'
 
 type CaseStudiesTeaserSectionProps = {
@@ -25,7 +26,7 @@ export function CaseStudiesTeaserSection({ block, caseStudies }: CaseStudiesTeas
           <Card key={study.slug}>
             <h3 className="text-lg font-semibold text-[var(--color-text)]">{study.title}</h3>
             <p className="mt-2 text-sm leading-relaxed text-[var(--color-text-muted)]">{study.summary}</p>
-            <Link className="mt-4 inline-flex text-sm font-semibold text-[var(--color-primary)]" href={`/case-studies/${study.slug}`}>
+            <Link className="mt-4 inline-flex text-sm font-semibold text-[var(--color-primary)]" href={getCaseStudyPath(study.slug)}>
               Read case study
             </Link>
           </Card>

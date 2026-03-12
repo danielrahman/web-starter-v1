@@ -5,6 +5,7 @@ import { CardGridSection, CTASection, NarrativeSection, SimplePageHeaderSection,
 import type { CTABlock, RichTextBlock, StatsBlock } from '@/lib/content/models'
 import { getContentSource } from '@/lib/content/get-content-source'
 import { buildMetadata } from '@/lib/seo'
+import { getCaseStudyPath } from '@/lib/site-paths'
 
 type CaseStudyPageProps = {
   params: Promise<{ slug: string }>
@@ -24,7 +25,7 @@ export async function generateMetadata({ params }: CaseStudyPageProps): Promise<
   return buildMetadata({
     title: caseStudy.seo?.title || `${caseStudy.title} | Case Study`,
     description: caseStudy.seo?.description || caseStudy.summary,
-    canonicalPath: caseStudy.seo?.canonicalPath || `/case-studies/${caseStudy.slug}`,
+    canonicalPath: caseStudy.seo?.canonicalPath || getCaseStudyPath(caseStudy.slug),
     seo: caseStudy.seo,
     site,
   })
