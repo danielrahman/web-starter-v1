@@ -1,7 +1,8 @@
-import type { LinkItem, SectionBlock } from '@/lib/content/models'
+import type { SectionBlock } from '@/lib/content/models'
 import { sectionBlockSchema } from '@/lib/content/schemas'
 
-import { asArray, asBoolean, asObject, asString, optionalString } from './coerce'
+import { asArray, asObject, asString, optionalString } from './coerce'
+import { normalizeLinkItem } from './link-item'
 
 export function mapSectionBlockToPayload(block: SectionBlock): Record<string, unknown> {
   const payloadBlock: Record<string, unknown> = {
@@ -156,20 +157,4 @@ export function normalizeBlock(raw: unknown): SectionBlock | null {
   }
 
   return sectionBlockSchema.parse(normalized)
-}
-
-function normalizeLinkItem(input: unknown): LinkItem | null {
-  const value = asObject(input)
-  const label = asString(value.label, '')
-  const href = asString(value.href, '')
-
-  if (!label || !href) {
-    return null
-  }
-
-  return {
-    label,
-    href,
-    external: asBoolean(value.external),
-  }
 }

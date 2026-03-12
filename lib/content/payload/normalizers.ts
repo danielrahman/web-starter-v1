@@ -15,7 +15,8 @@ import type {
 import { pageSchema } from '@/lib/content/schemas'
 
 import { normalizeBlock } from './block-mapper'
-import { asArray, asBoolean, asObject, asString, optionalString } from './coerce'
+import { asArray, asObject, asString, optionalString } from './coerce'
+import { normalizeLinkItem } from './link-item'
 import { normalizePayloadSeo } from './seo'
 
 const EMPTY_SITE_CONFIG: SiteConfig = {
@@ -170,22 +171,6 @@ export function normalizeFAQGroupDocument(input: unknown, fallbackSlug: string):
         answer: asString(faq.answer, ''),
       }
     }),
-  }
-}
-
-function normalizeLinkItem(input: unknown) {
-  const value = asObject(input)
-  const label = asString(value.label, '')
-  const href = asString(value.href, '')
-
-  if (!label || !href) {
-    return null
-  }
-
-  return {
-    label,
-    href,
-    external: asBoolean(value.external),
   }
 }
 
