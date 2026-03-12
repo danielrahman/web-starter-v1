@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next'
 
 import { getContentSource } from '@/lib/content/get-content-source'
+import { getCaseStudyPath, getPagePath } from '@/lib/site-paths'
 import { absoluteUrl } from '@/lib/utils'
 import { siteUrl } from '@/lib/env'
 
@@ -10,12 +11,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const pageEntries = pages.map((page) => ({
     lastModified: new Date(),
-    url: absoluteUrl(page.slug === 'home' ? '/' : `/${page.slug}`, siteUrl),
+    url: absoluteUrl(getPagePath(page.slug), siteUrl),
   }))
 
   const caseStudyEntries = caseStudies.map((caseStudy) => ({
     lastModified: new Date(),
-    url: absoluteUrl(`/case-studies/${caseStudy.slug}`, siteUrl),
+    url: absoluteUrl(getCaseStudyPath(caseStudy.slug), siteUrl),
   }))
 
   return [...pageEntries, ...caseStudyEntries]
