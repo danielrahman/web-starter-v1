@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { SectionRenderer } from '@/components/sections'
 import { getContentSource } from '@/lib/content/get-content-source'
 import { generatePageMetadata } from '@/lib/content/page-metadata'
+import { getRequiredPageBySlug } from '@/lib/content/required-page'
 import { cmsEnabled } from '@/lib/env'
 
 type SlugPageProps = {
@@ -32,12 +33,7 @@ export default async function SlugPage({ params }: SlugPageProps) {
     notFound()
   }
 
-  const source = getContentSource()
-  const page = await source.getPageBySlug(slug)
-
-  if (!page) {
-    notFound()
-  }
+  const page = await getRequiredPageBySlug(slug)
 
   return <SectionRenderer blocks={page.blocks} />
 }

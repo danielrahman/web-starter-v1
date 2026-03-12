@@ -1,9 +1,9 @@
 import type { Metadata } from 'next'
-import { notFound } from 'next/navigation'
 
 import { ListingTeaserSection, SimplePageHeaderSection } from '@/components/sections'
 import { getContentSource } from '@/lib/content/get-content-source'
 import { generatePageMetadata } from '@/lib/content/page-metadata'
+import { getRequiredPageBySlug } from '@/lib/content/required-page'
 
 export async function generateMetadata(): Promise<Metadata> {
   return generatePageMetadata('case-studies')
@@ -11,11 +11,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function CaseStudiesPage() {
   const source = getContentSource()
-  const [page, caseStudies] = await Promise.all([source.getPageBySlug('case-studies'), source.getCaseStudies()])
-
-  if (!page) {
-    notFound()
-  }
+  const [page, caseStudies] = await Promise.all([getRequiredPageBySlug('case-studies'), source.getCaseStudies()])
 
   return (
     <>
