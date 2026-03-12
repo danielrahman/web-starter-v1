@@ -30,25 +30,31 @@ const variantStyles: Record<Variant, string> = {
 const baseStyles =
   'inline-flex h-11 items-center justify-center rounded-[var(--radius-md)] px-5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]'
 
+function getButtonClassName(variant: Variant, className?: string) {
+  return cn(baseStyles, variantStyles[variant], className)
+}
+
 export function Button({ className, variant = 'primary', children, ...props }: ButtonProps) {
   return (
-    <button className={cn(baseStyles, variantStyles[variant], className)} {...props}>
+    <button className={getButtonClassName(variant, className)} {...props}>
       {children}
     </button>
   )
 }
 
 export function ButtonLink({ className, variant = 'primary', children, href, external, ...props }: ButtonLinkProps) {
+  const buttonClassName = getButtonClassName(variant, className)
+
   if (external) {
     return (
-      <a className={cn(baseStyles, variantStyles[variant], className)} href={href} rel="noreferrer" target="_blank" {...props}>
+      <a className={buttonClassName} href={href} rel="noreferrer" target="_blank" {...props}>
         {children}
       </a>
     )
   }
 
   return (
-    <Link className={cn(baseStyles, variantStyles[variant], className)} href={href} {...props}>
+    <Link className={buttonClassName} href={href} {...props}>
       {children}
     </Link>
   )
