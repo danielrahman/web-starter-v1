@@ -3,9 +3,16 @@ import 'server-only'
 import { Resend } from 'resend'
 
 import { resendConfig } from '@/lib/env'
-import type { ContactSubmission } from '@/lib/content/models'
 
-export async function sendContactEmail(submission: ContactSubmission): Promise<boolean> {
+export type ContactEmailPayload = {
+  company?: string
+  email: string
+  message: string
+  name: string
+  pageUrl?: string
+}
+
+export async function sendContactEmail(submission: ContactEmailPayload): Promise<boolean> {
   if (!resendConfig.apiKey || !resendConfig.fromEmail || !resendConfig.toEmail) {
     return false
   }

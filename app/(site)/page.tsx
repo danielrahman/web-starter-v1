@@ -1,13 +1,7 @@
-import { SectionRenderer } from '@/components/sections'
-import { generatePageMetadata } from '@/lib/content/page-metadata'
-import { getRequiredPageBySlug } from '@/lib/content/required-page'
-
-export async function generateMetadata() {
-  return generatePageMetadata('home')
-}
-
-export default async function HomePage() {
-  const page = await getRequiredPageBySlug('home')
-
-  return <SectionRenderer blocks={page.blocks} />
+export default function HomePage() {
+  return (
+    <main className="flex min-h-screen items-center justify-center px-6">
+      <h1 className="text-5xl font-semibold tracking-tight">START HERE</h1>
+    </main>
+  )
 }

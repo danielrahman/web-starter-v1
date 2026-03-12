@@ -3,22 +3,14 @@ import 'server-only'
 import type { Payload } from 'payload'
 import { cache } from 'react'
 
-import type { ImageAsset, SiteConfig } from '@/lib/content/models'
-import { normalizeSiteSettingsGlobal } from '@/lib/content/payload/normalizers'
+import type { ImageAsset, SiteSettings } from '@/lib/site-settings'
+import { normalizeSiteSettings } from '@/lib/site-settings'
 
-const FALLBACK_SITE_CONFIG: SiteConfig = {
-  name: 'Payload CMS',
-  tagline: 'Content platform',
-  description: 'Admin branding fallback.',
-  defaultTitle: 'Payload CMS',
-  defaultDescription: 'Admin branding fallback.',
-}
-
-export async function getAdminSiteConfig(payload: Payload): Promise<SiteConfig> {
+export async function getAdminSiteConfig(payload: Payload): Promise<SiteSettings> {
   return getCachedAdminSiteConfig(payload)
 }
 
-const getCachedAdminSiteConfig = cache(async (payload: Payload): Promise<SiteConfig> => {
+const getCachedAdminSiteConfig = cache(async (payload: Payload): Promise<SiteSettings> => {
   try {
     const rawGlobal = await payload.findGlobal({
       depth: 1,
@@ -26,12 +18,12 @@ const getCachedAdminSiteConfig = cache(async (payload: Payload): Promise<SiteCon
       slug: 'siteSettings',
     })
 
-    return normalizeSiteSettingsGlobal(rawGlobal).value
+    return normalizeSiteSettings(rawGlobal)
   } catch {
-    return FALLBACK_SITE_CONFIG
+    return normalizeSiteSettings({})
   }
 })
 
-export function getAdminBrandIcon(site: SiteConfig): ImageAsset | undefined {
+export function getAdminBrandIcon(site: SiteSettings): ImageAsset | undefined {
   return site.brand?.favicon || site.brand?.logo
 }

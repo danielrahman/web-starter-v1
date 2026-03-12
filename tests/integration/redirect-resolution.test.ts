@@ -25,27 +25,6 @@ test('resolvePayloadRedirect handles internal page references', () => {
   )
 })
 
-test('resolvePayloadRedirect handles internal case study references', () => {
-  assert.deepEqual(
-    resolvePayloadRedirect({
-      to: {
-        reference: {
-          relationTo: 'caseStudies',
-          value: {
-            slug: 'ridge-labs-revops',
-          },
-        },
-        type: 'reference',
-      },
-      type: '308',
-    }),
-    {
-      destination: '/case-studies/ridge-labs-revops',
-      statusCode: 308,
-    },
-  )
-})
-
 test('resolvePayloadRedirect handles custom URLs and defaults invalid codes to 301', () => {
   assert.deepEqual(
     resolvePayloadRedirect({

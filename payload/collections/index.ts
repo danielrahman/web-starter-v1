@@ -1,5 +1,3 @@
-export * from './case-studies'
-export * from './faqs'
 export * from './media'
 export * from './pages'
 export * from './submissions'

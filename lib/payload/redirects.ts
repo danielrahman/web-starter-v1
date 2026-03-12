@@ -37,6 +37,7 @@ function asRedirectStatus(input: unknown): ResolvedRedirect['statusCode'] {
 
 function normalizeCustomDestination(input: unknown): string | undefined {
   const value = asString(input)
+
   if (!value) {
     return undefined
   }

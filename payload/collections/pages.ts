@@ -1,19 +1,5 @@
 import type { CollectionConfig } from 'payload'
 
-import {
-  CaseStudiesTeaserBlock,
-  ContactFormBlock,
-  CTABlock,
-  FAQBlock,
-  FeaturesBlock,
-  HeroBlock,
-  ProofStripBlock,
-  RichTextBlock,
-  ServicesBlock,
-  StatsBlock,
-  TestimonialsBlock,
-} from '@/payload/blocks'
-
 export const Pages: CollectionConfig = {
   slug: 'pages',
   access: {
@@ -21,6 +7,7 @@ export const Pages: CollectionConfig = {
   },
   admin: {
     defaultColumns: ['title', 'slug', 'updatedAt'],
+    group: 'Website',
     useAsTitle: 'title',
   },
   versions: {
@@ -42,25 +29,6 @@ export const Pages: CollectionConfig = {
     {
       name: 'description',
       type: 'textarea',
-    },
-    {
-      name: 'blocks',
-      label: 'Page sections',
-      type: 'blocks',
-      required: true,
-      blocks: [
-        HeroBlock,
-        ProofStripBlock,
-        FeaturesBlock,
-        ServicesBlock,
-        RichTextBlock,
-        CaseStudiesTeaserBlock,
-        TestimonialsBlock,
-        StatsBlock,
-        FAQBlock,
-        CTABlock,
-        ContactFormBlock,
-      ],
     },
   ],
 }

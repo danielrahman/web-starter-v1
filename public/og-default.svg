@@ -1,7 +1,0 @@
-<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="1200" height="630" fill="#F1F5F9" />
-  <rect x="60" y="60" width="1080" height="510" rx="28" fill="#FFFFFF" stroke="#DBE3EA" stroke-width="2" />
-  <text x="120" y="250" font-size="82" font-family="Arial, sans-serif" fill="#0F172A" font-weight="700">Northstar Systems</text>
-  <text x="120" y="332" font-size="36" font-family="Arial, sans-serif" fill="#475569">Marketing Website Starter</text>
-  <text x="120" y="392" font-size="30" font-family="Arial, sans-serif" fill="#0F766E">Next.js + Tailwind + Payload (Optional)</text>
-</svg>

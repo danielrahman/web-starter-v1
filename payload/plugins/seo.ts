@@ -2,7 +2,7 @@ import { seoPlugin } from '@payloadcms/plugin-seo'
 import type { SEOPluginConfig } from '@payloadcms/plugin-seo/types'
 import type { Field } from 'payload'
 
-import { getCaseStudyPath, getPagePath } from '@/lib/site-paths'
+import { getPagePath } from '@/lib/site-paths'
 import { optionalTrimmedString } from '@/lib/string-utils'
 
 function readString(value: unknown): string | undefined {
@@ -17,7 +17,7 @@ function buildSeoFields({ defaultFields }: { defaultFields: Field[] }): Field[] 
       label: 'Canonical Path',
       type: 'text',
       admin: {
-        description: 'Optional path like /services. Leave empty to use the default document URL.',
+        description: 'Optional path like /about. Leave empty to use the default document URL.',
       },
     },
     {
@@ -30,32 +30,21 @@ function buildSeoFields({ defaultFields }: { defaultFields: Field[] }): Field[] 
 }
 
 const config = {
-  collections: ['pages', 'caseStudies'],
+  collections: ['pages'],
   fields: buildSeoFields,
   generateDescription: ({ doc }) => {
     const value = doc as Record<string, unknown>
-    return readString(value.description) || readString(value.summary) || ''
+    return readString(value.description) || ''
   },
   generateTitle: ({ doc }) => {
     const value = doc as Record<string, unknown>
     return readString(value.title) || ''
   },
-  generateURL: ({ collectionConfig, doc }) => {
+  generateURL: ({ doc }) => {
     const value = doc as Record<string, unknown>
     const slug = readString(value.slug)
 
-    if (!slug) {
-      return ''
-    }
-
-    switch (collectionConfig?.slug) {
-      case 'pages':
-        return getPagePath(slug)
-      case 'caseStudies':
-        return getCaseStudyPath(slug)
-      default:
-        return ''
-    }
+    return slug ? getPagePath(slug) : ''
   },
   tabbedUI: true,
   uploadsCollection: 'media',

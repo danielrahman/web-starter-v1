@@ -6,7 +6,10 @@ import { getCollectionDocumentPath } from '@/lib/site-paths'
 
 const cmsEnabled = process.env.CMS_ENABLED === 'true'
 
-async function resolveReferenceDestination(request: NextRequest, input: unknown): Promise<null | { destination: string; statusCode: 301 | 302 | 303 | 307 | 308 }> {
+async function resolveReferenceDestination(
+  request: NextRequest,
+  input: unknown,
+): Promise<null | { destination: string; statusCode: 301 | 302 | 303 | 307 | 308 }> {
   const reference = extractPayloadRedirectReference(input)
 
   if (!reference) {
@@ -27,7 +30,10 @@ async function resolveReferenceDestination(request: NextRequest, input: unknown)
   }
 
   const document = (await response.json()) as { slug?: string }
-  const destination = typeof document.slug === 'string' ? getCollectionDocumentPath(reference.collection, document.slug) : undefined
+  const destination =
+    typeof document.slug === 'string'
+      ? getCollectionDocumentPath(reference.collection, document.slug)
+      : undefined
 
   if (!destination) {
     return null

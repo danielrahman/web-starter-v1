@@ -8,10 +8,6 @@ export function getPagePath(slug: string): string {
   return `/${normalizedSlug}`
 }
 
-export function getCaseStudyPath(slug: string): string {
-  return `/case-studies/${slug.trim()}`
-}
-
 export function getCollectionDocumentPath(collection: string, slug: string): string | undefined {
   const normalizedSlug = slug.trim()
 
@@ -22,8 +18,6 @@ export function getCollectionDocumentPath(collection: string, slug: string): str
   switch (collection) {
     case 'pages':
       return getPagePath(normalizedSlug)
-    case 'caseStudies':
-      return getCaseStudyPath(normalizedSlug)
     default:
       return undefined
   }

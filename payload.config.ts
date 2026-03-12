@@ -9,9 +9,9 @@ import sharp from 'sharp'
 
 import { getCmsEnv, cmsEnabled } from '@/lib/env'
 import { resolvePayloadStorage } from '@/lib/payload/storage'
+import { Media, Pages, Submissions, Users } from '@/payload/collections'
 import { payloadSeoPlugin } from '@/payload/plugins/seo'
-import { CaseStudies, FAQs, Media, Pages, Submissions, Users } from '@/payload/collections'
-import { FooterGlobal, NavigationGlobal, SiteSettings } from '@/payload/globals'
+import { SiteSettings } from '@/payload/globals'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -31,7 +31,7 @@ const plugins = payloadStorage
       payloadStorage.plugin,
       payloadSeoPlugin,
       redirectsPlugin({
-        collections: ['pages', 'caseStudies'],
+        collections: ['pages'],
         redirectTypes: ['301', '302', '307', '308'],
       }),
     ]
@@ -61,8 +61,8 @@ export default buildConfig({
       },
     },
   },
-  collections: [Users, Media, Pages, CaseStudies, FAQs, Submissions],
-  globals: [SiteSettings, NavigationGlobal, FooterGlobal],
+  collections: [Users, Media, Pages, Submissions],
+  globals: [SiteSettings],
   editor: lexicalEditor(),
   db: sqliteAdapter({
     client: {
