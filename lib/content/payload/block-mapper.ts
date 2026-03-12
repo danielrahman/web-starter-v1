@@ -3,6 +3,7 @@ import { sectionBlockSchema } from '@/lib/content/schemas'
 
 import { asArray, asObject, asString, optionalString } from './coerce'
 import { normalizeLinkItem } from './link-item'
+import { normalizeTestimonialItem } from './testimonial'
 
 export function mapSectionBlockToPayload(block: SectionBlock): Record<string, unknown> {
   const payloadBlock: Record<string, unknown> = {
@@ -95,15 +96,7 @@ export function normalizeBlock(raw: unknown): SectionBlock | null {
                       type,
                       id,
                       title: optionalString(block.title),
-                      items: asArray(block.items).map((item) => {
-                        const testimonial = asObject(item)
-                        return {
-                          quote: asString(testimonial.quote, ''),
-                          author: asString(testimonial.author, ''),
-                          role: optionalString(testimonial.role),
-                          company: optionalString(testimonial.company),
-                        }
-                      }),
+                      items: asArray(block.items).map(normalizeTestimonialItem),
                     }
                   : type === 'stats'
                     ? {

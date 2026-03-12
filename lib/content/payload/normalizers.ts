@@ -18,6 +18,7 @@ import { normalizeBlock } from './block-mapper'
 import { asArray, asObject, asString, hasText, optionalString } from './coerce'
 import { normalizeLinkItem } from './link-item'
 import { normalizePayloadSeo } from './seo'
+import { normalizeOptionalTestimonial } from './testimonial'
 
 const EMPTY_SITE_CONFIG: SiteConfig = {
   name: 'Marketing Site',
@@ -129,6 +130,7 @@ export function normalizePageDocument(input: unknown): Page {
 
 export function normalizeCaseStudyDocument(input: unknown): CaseStudy {
   const value = asObject(input)
+  const testimonial = normalizeOptionalTestimonial(value.testimonial)
 
   return {
     slug: asString(value.slug, 'case-study'),
@@ -145,14 +147,7 @@ export function normalizeCaseStudyDocument(input: unknown): CaseStudy {
         description: optionalString(stat.description),
       }
     }),
-    testimonial: asObject(value.testimonial).quote
-      ? {
-          quote: asString(asObject(value.testimonial).quote, ''),
-          author: asString(asObject(value.testimonial).author, ''),
-          role: optionalString(asObject(value.testimonial).role),
-          company: optionalString(asObject(value.testimonial).company),
-        }
-      : undefined,
+    testimonial,
     seo: normalizePayloadSeo(value),
   }
 }
