@@ -2,6 +2,12 @@ import type { SeoMeta } from '@/lib/content/models'
 
 import { asBoolean, asObject, optionalString } from './coerce'
 
+function compactDefinedFields<T extends Record<string, unknown>>(value: T): Partial<T> {
+  return Object.fromEntries(
+    Object.entries(value).filter(([, fieldValue]) => fieldValue !== undefined && fieldValue !== ''),
+  ) as Partial<T>
+}
+
 function extractImageUrl(input: unknown): string | undefined {
   const value = asObject(input)
 
@@ -31,9 +37,7 @@ export function normalizePayloadSeo(input: unknown): SeoMeta | undefined {
     ogImage: extractImageUrl(meta.image) || optionalString(legacySeo.ogImage),
   } satisfies SeoMeta
 
-  const compact = Object.fromEntries(
-    Object.entries(normalized).filter(([, value]) => value !== undefined && value !== ''),
-  ) as SeoMeta
+  const compact = compactDefinedFields(normalized) as SeoMeta
 
   return Object.keys(compact).length > 0 ? compact : undefined
 }
@@ -50,5 +54,6 @@ export function mapSeoToPayloadMeta(seo?: SeoMeta): Record<string, unknown> | un
     ...(seo.noIndex ? { noIndex: true } : {}),
   }
 
-  return Object.keys(meta).length > 0 ? meta : undefined
+  const compact = compactDefinedFields(meta)
+  return Object.keys(compact).length > 0 ? compact : undefined
 }
