@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload'
 
+import { readObjectString } from '@/lib/object-utils'
 import { getLocalMediaDir } from '@/lib/env'
 import { getStoragePrefix, normalizeStoragePrefix } from '@/lib/storage-prefix'
 
@@ -68,19 +69,13 @@ export const Media: CollectionConfig = {
         }
 
         const nextData = data as Record<string, unknown>
-        const currentAlt = typeof nextData.alt === 'string' ? nextData.alt.trim() : ''
-        const nextFilename = typeof nextData.filename === 'string' ? nextData.filename : undefined
-        const originalFilename =
-          originalDoc && typeof originalDoc === 'object' && 'filename' in originalDoc && typeof originalDoc.filename === 'string'
-            ? originalDoc.filename
-            : undefined
-        const originalPrefix =
-          originalDoc && typeof originalDoc === 'object' && 'prefix' in originalDoc && typeof originalDoc.prefix === 'string'
-            ? originalDoc.prefix
-            : undefined
+        const currentAlt = readObjectString(nextData, 'alt')
+        const nextFilename = readObjectString(nextData, 'filename')
+        const originalFilename = readObjectString(originalDoc, 'filename')
+        const originalPrefix = readObjectString(originalDoc, 'prefix')
 
         const resolvedPrefix = resolveMediaPrefix({
-          currentPrefix: typeof nextData.prefix === 'string' ? nextData.prefix : undefined,
+          currentPrefix: readObjectString(nextData, 'prefix'),
           filename: nextFilename,
           originalFilename,
           originalPrefix,

@@ -1,3 +1,4 @@
+import { asObject, readObjectString } from '@/lib/object-utils'
 import { optionalTrimmedString } from '@/lib/string-utils'
 
 export type ImageAsset = {
@@ -52,10 +53,6 @@ const EMPTY_SITE_SETTINGS: SiteSettings = {
   defaultDescription: 'Admin branding fallback.',
 }
 
-function asObject(input: unknown): Record<string, unknown> {
-  return input && typeof input === 'object' ? (input as Record<string, unknown>) : {}
-}
-
 function normalizeHexColor(input: unknown): string | undefined {
   const value = optionalTrimmedString(input)
 
@@ -67,9 +64,8 @@ function normalizeHexColor(input: unknown): string | undefined {
 }
 
 function normalizeImageAsset(input: unknown): ImageAsset | undefined {
-  const value = asObject(input)
-  const url = optionalTrimmedString(value.url)
-  const alt = optionalTrimmedString(value.alt)
+  const url = readObjectString(input, 'url')
+  const alt = readObjectString(input, 'alt')
 
   if (!url || !alt) {
     return undefined
@@ -100,8 +96,8 @@ export function normalizeSiteSettings(input: unknown): SiteSettings {
         borderColor: normalizeHexColor(colorsValue.borderColor),
       },
       fonts: {
-        body: optionalTrimmedString(fontsValue.body) as BrandFontPreset | undefined,
-        heading: optionalTrimmedString(fontsValue.heading) as BrandFontPreset | undefined,
+        body: readObjectString(fontsValue, 'body') as BrandFontPreset | undefined,
+        heading: readObjectString(fontsValue, 'heading') as BrandFontPreset | undefined,
       },
     },
   }
@@ -114,13 +110,12 @@ export function normalizeSiteSettings(input: unknown): SiteSettings {
     Object.values(brand.theme?.fonts || {}).some(Boolean)
 
   return {
-    name: optionalTrimmedString(value.name) || EMPTY_SITE_SETTINGS.name,
-    tagline: optionalTrimmedString(value.tagline) || EMPTY_SITE_SETTINGS.tagline,
-    description: optionalTrimmedString(value.description) || EMPTY_SITE_SETTINGS.description,
-    defaultTitle: optionalTrimmedString(value.defaultTitle) || EMPTY_SITE_SETTINGS.defaultTitle,
-    defaultDescription:
-      optionalTrimmedString(value.defaultDescription) || EMPTY_SITE_SETTINGS.defaultDescription,
-    contactEmail: optionalTrimmedString(value.contactEmail),
+    name: readObjectString(value, 'name') || EMPTY_SITE_SETTINGS.name,
+    tagline: readObjectString(value, 'tagline') || EMPTY_SITE_SETTINGS.tagline,
+    description: readObjectString(value, 'description') || EMPTY_SITE_SETTINGS.description,
+    defaultTitle: readObjectString(value, 'defaultTitle') || EMPTY_SITE_SETTINGS.defaultTitle,
+    defaultDescription: readObjectString(value, 'defaultDescription') || EMPTY_SITE_SETTINGS.defaultDescription,
+    contactEmail: readObjectString(value, 'contactEmail'),
     brand: hasBrandData ? brand : undefined,
   }
 }

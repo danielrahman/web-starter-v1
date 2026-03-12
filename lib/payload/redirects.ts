@@ -1,3 +1,4 @@
+import { asObject, readObjectString } from '@/lib/object-utils'
 import { getCollectionDocumentPath } from '@/lib/site-paths'
 import { optionalTrimmedString } from '@/lib/string-utils'
 
@@ -10,14 +11,6 @@ type RedirectReference = {
   collection: string
   id: number | string
   statusCode: ResolvedRedirect['statusCode']
-}
-
-function asObject(input: unknown): Record<string, unknown> {
-  return input && typeof input === 'object' ? (input as Record<string, unknown>) : {}
-}
-
-function asString(input: unknown): string | undefined {
-  return optionalTrimmedString(input)
 }
 
 function asRedirectStatus(input: unknown): ResolvedRedirect['statusCode'] {
@@ -36,7 +29,7 @@ function asRedirectStatus(input: unknown): ResolvedRedirect['statusCode'] {
 }
 
 function normalizeCustomDestination(input: unknown): string | undefined {
-  const value = asString(input)
+  const value = optionalTrimmedString(input)
 
   if (!value) {
     return undefined
@@ -51,9 +44,9 @@ function normalizeCustomDestination(input: unknown): string | undefined {
 
 function resolveReferenceDestination(input: unknown): string | undefined {
   const reference = asObject(input)
-  const relationTo = asString(reference.relationTo)
+  const relationTo = readObjectString(reference, 'relationTo')
   const relationValue = asObject(reference.value)
-  const slug = asString(relationValue.slug)
+  const slug = readObjectString(relationValue, 'slug')
 
   if (!relationTo || !slug) {
     return undefined
@@ -65,14 +58,14 @@ function resolveReferenceDestination(input: unknown): string | undefined {
 export function extractPayloadRedirectReference(input: unknown): RedirectReference | null {
   const value = asObject(input)
   const to = asObject(value.to)
-  const targetType = asString(to.type)
+  const targetType = readObjectString(to, 'type')
 
   if (targetType !== 'reference') {
     return null
   }
 
   const reference = asObject(to.reference)
-  const relationTo = asString(reference.relationTo)
+  const relationTo = readObjectString(reference, 'relationTo')
   const relationValue = reference.value
 
   if (!relationTo || (typeof relationValue !== 'number' && typeof relationValue !== 'string')) {
@@ -89,7 +82,7 @@ export function extractPayloadRedirectReference(input: unknown): RedirectReferen
 export function resolvePayloadRedirect(input: unknown): ResolvedRedirect | null {
   const value = asObject(input)
   const to = asObject(value.to)
-  const targetType = asString(to.type)
+  const targetType = readObjectString(to, 'type')
 
   const destination =
     targetType === 'reference'
