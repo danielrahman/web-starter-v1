@@ -7,7 +7,7 @@ import { redirectsPlugin } from '@payloadcms/plugin-redirects'
 import { buildConfig } from 'payload'
 import sharp from 'sharp'
 
-import { getCmsEnv, cmsEnabled } from '@/lib/env'
+import { cmsEnabledFromEnv, getCmsEnv } from '@/lib/env'
 import { resolvePayloadStorage } from '@/lib/payload/storage'
 import { Media, Pages, Submissions, Users } from '@/payload/collections'
 import { payloadSeoPlugin } from '@/payload/plugins/seo'
@@ -16,7 +16,7 @@ import { SiteSettings } from '@/payload/globals'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
-const cmsEnv = cmsEnabled ? getCmsEnv() : null
+const cmsEnv = cmsEnabledFromEnv() ? getCmsEnv() : null
 const payloadStorage = cmsEnv
   ? resolvePayloadStorage({
       cmsEnv,

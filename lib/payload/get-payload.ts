@@ -1,11 +1,11 @@
 import 'server-only'
 
-import { cmsEnabled } from '@/lib/env'
+import { cmsEnabledFromEnv } from '@/lib/env'
 
 let payloadPromise: Promise<import('payload').Payload> | null = null
 
 export async function getPayloadClient() {
-  if (!cmsEnabled) {
+  if (!cmsEnabledFromEnv()) {
     throw new Error('Payload client requested while CMS mode is disabled.')
   }
 

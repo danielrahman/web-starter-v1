@@ -33,3 +33,6 @@ payload-types.ts
 .idea/
 .DS_Store
 Thumbs.db
+
+# Local agent/tool state
+.desloppify/

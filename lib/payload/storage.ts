@@ -27,13 +27,6 @@ export type ResolvedPayloadStorage =
       s3: CmsEnvWithS3
     })
 
-function buildMediaPrefix({ cwd, siteUrl }: Omit<ResolvePayloadStorageArgs, 'cmsEnv'>) {
-  return getStoragePrefix({
-    cwd,
-    siteUrl,
-  })
-}
-
 export function buildPublicMediaFileUrl({
   filename,
   prefix,
@@ -93,8 +86,8 @@ function buildLocalStoragePlugin({ prefix }: { prefix: string }): Plugin {
     },
     config: {
       credentials: {
-        accessKeyId: 'local-media-disabled',
-        secretAccessKey: 'local-media-disabled',
+        accessKeyId: '',
+        secretAccessKey: '',
       },
       endpoint: 'https://example.invalid',
       region: 'auto',
@@ -104,7 +97,10 @@ function buildLocalStoragePlugin({ prefix }: { prefix: string }): Plugin {
 }
 
 export function resolvePayloadStorage(args: ResolvePayloadStorageArgs): ResolvedPayloadStorage {
-  const prefix = buildMediaPrefix(args)
+  const prefix = getStoragePrefix({
+    cwd: args.cwd,
+    siteUrl: args.siteUrl,
+  })
   const dbURL = args.cmsEnv.DATABASE_URL
 
   if (hasS3StorageConfig(args.cmsEnv)) {

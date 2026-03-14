@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server'
 
-import { cmsEnabled } from '@/lib/env'
+import { cmsEnabledFromEnv } from '@/lib/env'
 
 type SlugRouteContext = {
   params: Promise<{ slug: string[] }>
 }
+
+type RestHandlerName = 'REST_DELETE' | 'REST_GET' | 'REST_OPTIONS' | 'REST_PATCH' | 'REST_POST' | 'REST_PUT'
 
 async function loadPayloadRestHandlers() {
   const [configModule, routeHandlers] = await Promise.all([import('@payload-config'), import('@payloadcms/next/routes')])
@@ -18,44 +20,35 @@ function disabledResponse() {
   return NextResponse.json({ error: 'CMS is disabled' }, { status: 404 })
 }
 
-export async function GET(request: Request, context: SlugRouteContext) {
-  if (!cmsEnabled) return disabledResponse()
+async function runPayloadRestHandler(handlerName: RestHandlerName, request: Request, context: SlugRouteContext) {
+  if (!cmsEnabledFromEnv()) {
+    return disabledResponse()
+  }
 
   const { config, routeHandlers } = await loadPayloadRestHandlers()
-  return routeHandlers.REST_GET(config)(request, context)
+  return routeHandlers[handlerName](config)(request, context)
+}
+
+export async function GET(request: Request, context: SlugRouteContext) {
+  return runPayloadRestHandler('REST_GET', request, context)
 }
 
 export async function POST(request: Request, context: SlugRouteContext) {
-  if (!cmsEnabled) return disabledResponse()
-
-  const { config, routeHandlers } = await loadPayloadRestHandlers()
-  return routeHandlers.REST_POST(config)(request, context)
+  return runPayloadRestHandler('REST_POST', request, context)
 }
 
 export async function DELETE(request: Request, context: SlugRouteContext) {
-  if (!cmsEnabled) return disabledResponse()
-
-  const { config, routeHandlers } = await loadPayloadRestHandlers()
-  return routeHandlers.REST_DELETE(config)(request, context)
+  return runPayloadRestHandler('REST_DELETE', request, context)
 }
 
 export async function PATCH(request: Request, context: SlugRouteContext) {
-  if (!cmsEnabled) return disabledResponse()
-
-  const { config, routeHandlers } = await loadPayloadRestHandlers()
-  return routeHandlers.REST_PATCH(config)(request, context)
+  return runPayloadRestHandler('REST_PATCH', request, context)
 }
 
 export async function PUT(request: Request, context: SlugRouteContext) {
-  if (!cmsEnabled) return disabledResponse()
-
-  const { config, routeHandlers } = await loadPayloadRestHandlers()
-  return routeHandlers.REST_PUT(config)(request, context)
+  return runPayloadRestHandler('REST_PUT', request, context)
 }
 
 export async function OPTIONS(request: Request, context: SlugRouteContext) {
-  if (!cmsEnabled) return disabledResponse()
-
-  const { config, routeHandlers } = await loadPayloadRestHandlers()
-  return routeHandlers.REST_OPTIONS(config)(request, context)
+  return runPayloadRestHandler('REST_OPTIONS', request, context)
 }

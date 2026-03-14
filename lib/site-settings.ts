@@ -53,6 +53,8 @@ const EMPTY_SITE_SETTINGS: SiteSettings = {
   defaultDescription: 'Admin branding fallback.',
 }
 
+const BRAND_FONT_PRESETS = new Set<BrandFontPreset>(['sora', 'manrope', 'systemSans', 'systemSerif'])
+
 function normalizeHexColor(input: unknown): string | undefined {
   const value = optionalTrimmedString(input)
 
@@ -72,6 +74,20 @@ function normalizeImageAsset(input: unknown): ImageAsset | undefined {
   }
 
   return { alt, url }
+}
+
+function isBrandFontPreset(value: string): value is BrandFontPreset {
+  return BRAND_FONT_PRESETS.has(value as BrandFontPreset)
+}
+
+function normalizeBrandFontPreset(input: unknown): BrandFontPreset | undefined {
+  const value = optionalTrimmedString(input)
+
+  if (!value) {
+    return undefined
+  }
+
+  return isBrandFontPreset(value) ? value : undefined
 }
 
 export function normalizeSiteSettings(input: unknown): SiteSettings {
@@ -96,8 +112,8 @@ export function normalizeSiteSettings(input: unknown): SiteSettings {
         borderColor: normalizeHexColor(colorsValue.borderColor),
       },
       fonts: {
-        body: readObjectString(fontsValue, 'body') as BrandFontPreset | undefined,
-        heading: readObjectString(fontsValue, 'heading') as BrandFontPreset | undefined,
+        body: normalizeBrandFontPreset(fontsValue.body),
+        heading: normalizeBrandFontPreset(fontsValue.heading),
       },
     },
   }

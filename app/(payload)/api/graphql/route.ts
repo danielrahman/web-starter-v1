@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server'
 
-import { cmsEnabled } from '@/lib/env'
+import { cmsEnabledFromEnv } from '@/lib/env'
 
 export async function POST(request: Request) {
-  if (!cmsEnabled) {
+  if (!cmsEnabledFromEnv()) {
     return NextResponse.json({ error: 'CMS is disabled' }, { status: 404 })
   }
 

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 
-import { cmsEnabled } from '@/lib/env'
+import { cmsEnabledFromEnv } from '@/lib/env'
 import { sendContactEmail } from '@/lib/email'
 import { getPayloadClient } from '@/lib/payload/get-payload'
 
@@ -15,6 +15,7 @@ const contactSubmissionSchema = z.object({
 })
 
 export async function POST(request: Request) {
+  const cmsEnabled = cmsEnabledFromEnv()
   let body: unknown
 
   try {
@@ -48,35 +49,45 @@ export async function POST(request: Request) {
   }
 
   let persisted = false
+  let persistenceFailed = false
+  let emailStatus: 'disabled' | 'provider_error' | 'sent' = 'disabled'
 
   try {
     if (cmsEnabled) {
-      const payload = await getPayloadClient()
+      try {
+        const payload = await getPayloadClient()
 
-      await payload.create({
-        collection: 'submissions',
-        data: {
-          ...submission,
-          submittedAt: new Date().toISOString(),
-        },
+        await payload.create({
+          collection: 'submissions',
+          data: {
+            ...submission,
+            submittedAt: new Date().toISOString(),
+          },
+          overrideAccess: true,
+        })
+
+        persisted = true
+      } catch (error) {
+        persistenceFailed = true
+        console.error('Failed to persist contact submission.', error)
+      }
+    }
+
+    emailStatus = (await sendContactEmail(submission)).status
+
+    if (!persisted && emailStatus !== 'sent') {
+      console.error('Contact submission was not durably handled.', {
+        emailStatus,
+        persistenceFailed,
       })
-
-      persisted = true
+      return NextResponse.json({ error: 'Unable to process submission' }, { status: 503 })
     }
 
-    let emailed = false
-
-    try {
-      emailed = await sendContactEmail(submission)
-    } catch (error) {
-      console.error('Failed to send contact email:', error)
-    }
-
-    if (!persisted && !emailed) {
-      console.info('Contact submission received (email not configured):', submission)
-    }
-
-    return NextResponse.json({ ok: true, emailed, persisted })
+    return NextResponse.json({
+      ok: true,
+      emailed: emailStatus === 'sent',
+      persisted,
+    })
   } catch (error) {
     console.error('Contact submission failed:', error)
     return NextResponse.json({ error: 'Unable to process submission' }, { status: 500 })

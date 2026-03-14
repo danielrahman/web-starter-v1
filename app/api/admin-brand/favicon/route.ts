@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 
-import { siteUrl } from '@/lib/env'
-import { getCachedSquareIconFromUrl, parseSquareIconSize } from '@/lib/payload/admin-brand-image'
+import { getSiteUrl } from '@/lib/env'
+import { loadSquareIconFromUrlCached, parseSquareIconSize } from '@/lib/payload/admin-brand-image'
 import { getPayloadClient } from '@/lib/payload/get-payload'
 import { getAdminBrandIcon, getAdminSiteConfig } from '@/lib/payload/admin-brand'
 import { absoluteUrl } from '@/lib/utils'
@@ -10,6 +10,7 @@ export const dynamic = 'force-dynamic'
 
 export async function GET(request: Request) {
   try {
+    const siteUrl = getSiteUrl()
     const payload = await getPayloadClient()
     const site = await getAdminSiteConfig(payload)
     const icon = getAdminBrandIcon(site)
@@ -20,7 +21,7 @@ export async function GET(request: Request) {
 
     const targetUrl = /^https?:\/\//.test(icon.url) ? icon.url : absoluteUrl(icon.url, siteUrl)
     const squareSize = parseSquareIconSize(new URL(request.url).searchParams.get('size'))
-    const iconBuffer = await getCachedSquareIconFromUrl(targetUrl, squareSize)
+    const iconBuffer = await loadSquareIconFromUrlCached(targetUrl, squareSize)
 
     if (!iconBuffer) {
       return new NextResponse(null, { status: 204 })

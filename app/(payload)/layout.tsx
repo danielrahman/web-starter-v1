@@ -3,16 +3,16 @@ import './admin-overrides.css'
 
 import type { ReactNode } from 'react'
 
-import { cmsEnabled } from '@/lib/env'
+import { cmsEnabledFromEnv } from '@/lib/env'
 
-import { payloadServerFunction } from './serverFunction'
+import { payloadServerFunction } from './server-function'
 
 type PayloadLayoutProps = {
   children: ReactNode
 }
 
 export default async function PayloadLayout({ children }: PayloadLayoutProps) {
-  if (!cmsEnabled) {
+  if (!cmsEnabledFromEnv()) {
     return (
       <html lang="en">
         <body>{children}</body>
@@ -23,7 +23,7 @@ export default async function PayloadLayout({ children }: PayloadLayoutProps) {
   const [{ default: config }, { RootLayout }, { importMap }] = await Promise.all([
     import('@payload-config'),
     import('@payloadcms/next/layouts'),
-    import('./admin/importMap'),
+    import('./admin/importMap.js'),
   ])
 
   return (

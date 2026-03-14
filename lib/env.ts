@@ -43,13 +43,9 @@ export function cmsEnabledFromEnv(env: CmsRuntimeEnv = process.env) {
   return booleanFromEnv.parse(env.CMS_ENABLED)
 }
 
-export const cmsEnabled = cmsEnabledFromEnv(process.env)
-
 export function getSiteUrl(env: CmsRuntimeEnv = process.env) {
   return env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
 }
-
-export const siteUrl = getSiteUrl(process.env)
 
 export function getLocalMediaDir(env: CmsRuntimeEnv = process.env) {
   return env.PAYLOAD_LOCAL_MEDIA_DIR?.trim() || 'media'
@@ -82,8 +78,10 @@ export function getCmsEnv(env: CmsRuntimeEnv = process.env) {
   return parsed
 }
 
-export const resendConfig = {
-  apiKey: process.env.RESEND_API_KEY,
-  fromEmail: process.env.CONTACT_FROM_EMAIL,
-  toEmail: process.env.CONTACT_TO_EMAIL,
+export function getResendConfig(env: CmsRuntimeEnv = process.env) {
+  return {
+    apiKey: optionalNonEmptyStringFromEnv.parse(env.RESEND_API_KEY),
+    fromEmail: optionalNonEmptyStringFromEnv.parse(env.CONTACT_FROM_EMAIL),
+    toEmail: optionalNonEmptyStringFromEnv.parse(env.CONTACT_TO_EMAIL),
+  }
 }

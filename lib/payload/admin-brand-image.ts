@@ -35,7 +35,7 @@ export function getAdminBrandFaviconPath(size = DEFAULT_SQUARE_ICON_SIZE): strin
   return `/api/admin-brand/favicon?size=${size}`
 }
 
-export async function getCachedSquareIconFromUrl(sourceUrl: string, size: number): Promise<Uint8Array | undefined> {
+export async function loadSquareIconFromUrlCached(sourceUrl: string, size: number): Promise<Uint8Array | undefined> {
   const cacheKey = `${sourceUrl}::${size}`
   const now = Date.now()
   const cachedEntry = squareIconCache.get(cacheKey)

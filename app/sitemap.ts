@@ -1,9 +1,11 @@
 import type { MetadataRoute } from 'next'
 
+import { getSiteUrl } from '@/lib/env'
 import { absoluteUrl } from '@/lib/utils'
-import { siteUrl } from '@/lib/env'
 
 export default function sitemap(): MetadataRoute.Sitemap {
+  const siteUrl = getSiteUrl()
+
   return [
     {
       lastModified: new Date(),
